@@ -1,0 +1,3560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수학 놀이터 (버전 3.0 베타 얼리엑세스)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Jua -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Jua', sans-serif;
+            background-color: #f0f9ff;
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .btn-3d {
+            transition: all 0.1s ease-in-out;
+            position: relative;
+            top: 0;
+        }
+        .btn-3d:active, .btn-3d.active-press {
+            top: 4px;
+        }
+
+        .btn-yellow { background-color: #fde047; box-shadow: 0 6px 0 #eab308; color: #713f12; }
+        .btn-yellow:active, .btn-yellow.active-press { box-shadow: 0 2px 0 #eab308; }
+
+        .btn-green { background-color: #86efac; box-shadow: 0 6px 0 #22c55e; color: #14532d; }
+        .btn-green:active, .btn-green.active-press { box-shadow: 0 2px 0 #22c55e; }
+
+        .btn-pink { background-color: #f9a8d4; box-shadow: 0 6px 0 #db2777; color: #831843; }
+        .btn-pink:active, .btn-pink.active-press { box-shadow: 0 2px 0 #db2777; }
+
+        .btn-blue { background-color: #93c5fd; box-shadow: 0 6px 0 #3b82f6; color: #1e3a8a; }
+        .btn-blue:active, .btn-blue.active-press { box-shadow: 0 2px 0 #3b82f6; }
+
+        .btn-red { background-color: #fca5a5; box-shadow: 0 6px 0 #ef4444; color: #7f1d1d; }
+        .btn-red:active, .btn-red.active-press { box-shadow: 0 2px 0 #ef4444; }
+
+        .btn-white { background-color: #ffffff; box-shadow: 0 6px 0 #cbd5e1; color: #334155; border: 2px solid #e2e8f0; }
+        .btn-white:active, .btn-white.active-press { box-shadow: 0 2px 0 #cbd5e1; }
+
+        .mcq-selected {
+            background-color: #bfdbfe;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 0 #3b82f6;
+            top: 2px;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) rotate(-3deg); }
+            20%, 40%, 60%, 80% { transform: translateX(5px) rotate(3deg); }
+        }
+        .animate-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .cute-input {
+            border: 4px solid #cbd5e1;
+            border-radius: 1rem;
+            padding: 0.75rem 1.25rem;
+            font-size: 1.25rem;
+            outline: none;
+            transition: border-color 0.3s;
+            text-align: center;
+            width: 100%;
+        }
+        .cute-input:focus {
+            border-color: #60a5fa;
+        }
+
+        .math-fraction {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 1.2rem;
+            line-height: 1.2;
+        }
+        .math-fraction span {
+            display: block;
+        }
+        .math-fraction span.numerator {
+            border-bottom: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 시작 크레딧 오버레이 (MADE BY JUNSU LEE WITH GEMINI - 버전 3.0 베타 얼리엑세스) -->
+    <div id="intro-credit-overlay" onclick="dismissIntroCredit()" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 z-[100] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-700 cursor-pointer select-none">
+        <div class="animate-pop-in flex flex-col items-center">
+            <div class="text-6xl sm:text-7xl mb-5 floating">🎒✨</div>
+            <div class="inline-flex items-center gap-2 bg-amber-400/20 border-2 border-amber-300/80 text-amber-200 px-4 py-1.5 rounded-full text-sm sm:text-base font-bold tracking-wider mb-4 shadow-lg shadow-amber-500/20 animate-pulse">
+                🚀 버전 3.0 베타 얼리엑세스
+            </div>
+            <div class="text-xs sm:text-sm tracking-[0.35em] text-sky-300 font-bold uppercase mb-3">MATH PLAYGROUND</div>
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-white to-sky-300 tracking-wider drop-shadow-lg px-4 leading-snug">
+                MADE BY JUNSU LEE WITH GEMINI
+            </h1>
+            <div class="mt-8 w-48 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                <div id="intro-progress-bar" class="h-full bg-gradient-to-r from-yellow-400 to-sky-400 w-0 transition-all duration-[6800ms] ease-out"></div>
+            </div>
+            <p class="text-slate-400 text-xs sm:text-sm mt-4">화면을 터치하면 바로 시작합니다</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="w-full bg-white/80 backdrop-blur-md shadow-sm p-3 sm:p-4 sticky top-0 z-10 flex justify-between items-center gap-2">
+        <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="if(currentAccountId) goHome()">
+            <span class="text-3xl">🎒</span>
+            <h1 class="text-xl sm:text-2xl text-blue-600 font-bold hidden md:block">수학 놀이터</h1>
+            <span class="bg-amber-100 text-amber-800 border border-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-full hidden sm:inline-block">v3.0 BETA</span>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+            <!-- 로그인 사용자 프로필 배지 -->
+            <div id="user-profile-badge" class="hidden items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs sm:text-sm font-bold border border-indigo-200 shadow-sm">
+                <span>👤 <span id="header-nickname">게스트</span></span>
+                <span id="header-admin-badge" class="hidden bg-purple-600 text-white text-[11px] px-2 py-0.5 rounded-full shadow-sm">👑 관리자</span>
+                <button onclick="logoutUser()" class="bg-indigo-200 hover:bg-indigo-300 text-indigo-800 px-2 py-0.5 rounded-full text-xs transition-colors">로그아웃</button>
+            </div>
+            <!-- 서버/로컬 연결 상태 배지 -->
+            <div id="cloud-status-badge" class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs sm:text-sm font-bold border border-slate-200 flex items-center gap-1 shadow-sm">
+                <span id="cloud-status-icon">📱</span> <span id="cloud-status-text">기기 저장 모드</span>
+            </div>
+            <!-- 실시간 자동 저장 상태 표시 배지 -->
+            <div id="autosave-badge" class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs sm:text-sm font-bold border border-emerald-200 flex items-center gap-1 transition-all duration-300 shadow-sm">
+                <span id="autosave-icon">💾</span> <span id="autosave-text">자동 저장됨</span>
+            </div>
+            <!-- 관리자 설정 버튼 -->
+            <button onclick="openSettingsModal()" class="text-2xl hover:scale-110 transition-transform drop-shadow-sm" title="설정">⚙️</button>
+            <!-- 루비 표시기 -->
+            <div id="ruby-display" class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold shadow-sm flex items-center gap-1 border-2 border-red-300 text-sm sm:text-base">
+                <span>❤️</span> <span id="ruby-count">0</span>
+            </div>
+            <!-- 다이아 표시기 -->
+            <div id="diamond-display" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold shadow-sm flex items-center gap-1 border-2 border-blue-300 text-sm sm:text-base">
+                <span>💎</span> <span id="diamond-count">0</span>
+            </div>
+            <!-- 포인트 표시기 -->
+            <div id="point-display" class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-bold shadow-sm flex items-center gap-1 border-2 border-yellow-300 text-sm sm:text-base">
+                <span>🪙</span> <span id="point-count">0</span> P
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow flex flex-col items-center justify-start p-4 sm:p-8 relative" id="app-container">
+
+        <!-- Screen 0: Auth (Login & Register) -->
+        <div id="auth-screen" class="w-full max-w-md flex flex-col items-center animate-pop-in mt-4">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-b-8 border-slate-200 w-full flex flex-col items-center">
+                <div class="text-6xl mb-3 floating">🎒</div>
+                <span class="bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold px-3 py-0.5 rounded-full mb-2">🚀 버전 3.0 베타 얼리엑세스</span>
+                <h2 class="text-3xl font-bold text-slate-800 mb-1">수학 놀이터</h2>
+                <p class="text-slate-500 text-sm mb-6 text-center">로그인하면 포인트, 다이아, 루비, 자동차 차고가 계정에 안전하게 저장됩니다!</p>
+
+                <!-- 탭 전환 버튼 -->
+                <div class="w-full bg-slate-100 p-1.5 rounded-2xl flex gap-1 mb-6">
+                    <button type="button" id="tab-login-btn" onclick="switchAuthTab('login')" class="w-1/2 py-2.5 rounded-xl font-bold text-lg bg-white text-blue-600 shadow-sm transition-all">로그인</button>
+                    <button type="button" id="tab-register-btn" onclick="switchAuthTab('register')" class="w-1/2 py-2.5 rounded-xl font-bold text-lg text-slate-500 transition-all">회원가입</button>
+                </div>
+
+                <!-- 로그인 폼 -->
+                <form id="login-form" onsubmit="handleLogin(event)" class="w-full flex flex-col gap-3">
+                    <input type="text" id="login-id" class="cute-input" placeholder="아이디 입력" autocomplete="username" required>
+                    <input type="password" id="login-pw" class="cute-input" placeholder="비밀번호 입력" autocomplete="current-password" required>
+                    <button type="submit" class="btn-3d btn-blue text-xl py-3.5 rounded-2xl font-bold mt-2 w-full">로그인하기 🚀</button>
+                </form>
+
+                <!-- 회원가입 폼 -->
+                <form id="register-form" onsubmit="handleRegister(event)" class="w-full hidden flex-col gap-3">
+                    <input type="text" id="reg-nickname" class="cute-input" placeholder="닉네임 (예: 수학왕)" maxlength="12" required>
+                    <input type="text" id="reg-id" class="cute-input" placeholder="사용할 아이디 (영문/숫자)" autocomplete="username" required>
+                    <input type="password" id="reg-pw" class="cute-input" placeholder="비밀번호 (4자 이상)" autocomplete="new-password" required>
+                    <input type="password" id="reg-pw-confirm" class="cute-input" placeholder="비밀번호 확인" autocomplete="new-password" required>
+                    <button type="submit" class="btn-3d btn-green text-xl py-3.5 rounded-2xl font-bold mt-2 w-full">가입하고 100P 받기 🎉</button>
+                </form>
+
+                <div class="w-full flex items-center gap-3 my-5">
+                    <div class="h-px bg-slate-200 flex-grow"></div>
+                    <span class="text-xs text-slate-400">또는</span>
+                    <div class="h-px bg-slate-200 flex-grow"></div>
+                </div>
+
+                <button type="button" onclick="loginAsGuest()" class="btn-3d btn-white text-base py-3 rounded-2xl font-bold w-full text-slate-600 mb-3">
+                    게스트로 바로 체험하기 👋
+                </button>
+
+                <button type="button" onclick="openSyncImportModal()" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-2 border-indigo-200 py-2.5 px-4 rounded-2xl font-bold text-sm transition-colors mb-2">
+                    📲 카톡으로 받은 계정 코드 불러오기
+                </button>
+
+                <button type="button" onclick="openCustomFirebaseModal()" class="w-full bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200 py-2 px-4 rounded-2xl font-bold text-xs transition-colors">
+                    ☁️ 실시간 서버 연결 설정 (완전 자동 동기화용)
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 1: Home / Grade & Semester & Unit Selection -->
+        <div id="home-screen" class="w-full max-w-4xl hidden flex-col items-center animate-pop-in">
+            <!-- 크리스마스 캠페인 배너 영역 -->
+            <div id="christmas-banner" class="w-full max-w-2xl mb-4"></div>
+
+            <!-- 뒤로가기 내비게이션 바 -->
+            <div id="home-nav-bar" class="w-full max-w-2xl hidden justify-start mb-2">
+                <button id="home-back-btn" class="bg-white/90 hover:bg-white text-slate-600 px-4 py-2 rounded-2xl font-bold shadow-sm border border-slate-200 transition-colors">
+                    ◀ 학년 다시 고르기
+                </button>
+            </div>
+
+            <h2 id="home-title" class="text-3xl sm:text-4xl text-slate-700 mb-8 mt-2 text-center floating">어떤 학년을 공부할까요? 🤔</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl" id="unit-grid">
+                <!-- Grades / Semesters / Units injected here by JS -->
+            </div>
+        </div>
+
+        <!-- Screen 2: Quiz Area -->
+        <div id="quiz-screen" class="w-full max-w-2xl hidden animate-pop-in flex-col">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border-2 border-slate-100 mb-6 gap-2">
+                <button onclick="backToUnits()" class="text-slate-400 hover:text-slate-600 text-lg sm:text-xl transition-colors shrink-0">◀ 뒤로</button>
+                <div class="text-lg sm:text-xl font-bold text-slate-700 text-center truncate" id="unit-title-display">단원 이름</div>
+                <div class="text-base sm:text-lg text-blue-500 font-bold bg-blue-50 px-3 py-1 rounded-full shrink-0" id="progress-display">1 / 60</div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-lg border-b-8 border-slate-200 flex flex-col items-center w-full">
+                <div id="question-text" class="text-2xl sm:text-3xl text-slate-800 text-center mb-8 leading-relaxed"></div>
+                <div id="input-area" class="w-full flex flex-col items-center gap-4 mb-8"></div>
+                <button id="submit-btn" onclick="checkAnswer()" class="btn-3d btn-yellow text-2xl px-10 py-4 rounded-2xl w-full sm:w-auto mt-4 font-bold">
+                    정답 확인! ✨
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Results -->
+        <div id="result-screen" class="w-full max-w-md hidden animate-pop-in flex-col items-center mt-10">
+            <div class="bg-white rounded-3xl p-10 shadow-lg border-b-8 border-slate-200 flex flex-col items-center w-full text-center">
+                <div id="result-emoji" class="text-7xl mb-4 floating">🎉</div>
+                <h2 class="text-4xl text-slate-800 mb-2">학습 완료!</h2>
+                <p class="text-xl text-slate-500 mb-8" id="score-text">문제를 모두 풀었어요!</p>
+                <button onclick="backToUnits()" class="btn-3d btn-green text-2xl px-8 py-4 rounded-2xl w-full font-bold">
+                    다른 단원 고르기 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Gacha & Garage -->
+        <div id="gacha-screen" class="w-full max-w-4xl hidden animate-pop-in flex-col items-center">
+            <div class="w-full flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border-2 border-slate-100 mb-6">
+                <button onclick="goHome()" class="text-slate-400 hover:text-slate-600 text-xl transition-colors">◀ 홈으로</button>
+                <div class="text-2xl font-bold text-slate-700">자동차 뽑기방 🚗</div>
+                <div class="w-20"></div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-8 shadow-lg border-b-8 border-slate-200 flex flex-col items-center w-full max-w-md mb-8 relative overflow-hidden">
+                <div id="gacha-machine" class="text-8xl mb-6 cursor-pointer drop-shadow-xl select-none" onclick="drawGacha(1)">🎰</div>
+                <div class="flex gap-4 w-full mb-4">
+                    <button onclick="drawGacha(1)" class="btn-3d btn-pink text-xl px-4 py-4 rounded-2xl w-1/2 font-bold">1회 뽑기 (50P)</button>
+                    <button onclick="drawGacha(3)" class="btn-3d btn-yellow text-xl px-4 py-4 rounded-2xl w-1/2 font-bold">3회 뽑기 (150P)</button>
+                </div>
+                <button onclick="openRubyRoulette()" class="btn-3d btn-blue text-lg px-4 py-3 rounded-2xl w-full font-bold mb-4">
+                    🎡 루비 행운의 룰렛 돌리기 (2 ❤️)
+                </button>
+                <p class="text-lg text-slate-500 text-center">포인트를 모아 멋진 자동차를 뽑아보세요!</p>
+            </div>
+
+            <!-- 프리미엄 브랜드 팩 -->
+            <div class="w-full bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl border-b-8 border-slate-900 mb-8">
+                <h3 class="text-2xl font-bold text-yellow-400 mb-6 flex items-center gap-2">💎 프리미엄 브랜드 팩 (다이아 & 루비 전용)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-700/50 border border-slate-600 rounded-2xl p-4 flex justify-between items-center">
+                        <div>
+                            <div class="text-lg font-bold text-white mb-1">😈 람보르기니 팩</div>
+                            <div class="text-xs text-slate-300">4종 확정 (전설~불멸)</div>
+                        </div>
+                        <button onclick="buyCarPack('lambo')" class="btn-3d btn-blue px-4 py-3 rounded-xl font-bold text-sm whitespace-nowrap">5,000 💎</button>
+                    </div>
+                    <div class="bg-slate-700/50 border border-slate-600 rounded-2xl p-4 flex justify-between items-center">
+                        <div>
+                            <div class="text-lg font-bold text-white mb-1">🏎️ 포르쉐 팩</div>
+                            <div class="text-xs text-slate-300">4종 확정 (전설~뽑기불가)</div>
+                        </div>
+                        <button onclick="buyCarPack('porsche')" class="btn-3d btn-blue px-4 py-3 rounded-xl font-bold text-sm whitespace-nowrap">6,000 💎</button>
+                    </div>
+                    <div class="bg-slate-700/50 border border-slate-600 rounded-2xl p-4 flex justify-between items-center">
+                        <div>
+                            <div class="text-lg font-bold text-white mb-1">🛸 부가티 팩</div>
+                            <div class="text-xs text-slate-300">4종 확정 (신화~뽑기불가)</div>
+                        </div>
+                        <button onclick="buyCarPack('bugatti')" class="btn-3d btn-blue px-4 py-3 rounded-xl font-bold text-sm whitespace-nowrap">8,000 💎</button>
+                    </div>
+                    <div class="bg-slate-700/50 border border-slate-600 rounded-2xl p-4 flex justify-between items-center">
+                        <div>
+                            <div class="text-lg font-bold text-white mb-1">✨ K-프리미엄 팩</div>
+                            <div class="text-xs text-slate-300">국산 3종 (전설~개발자)</div>
+                        </div>
+                        <button onclick="buyCarPack('korea')" class="btn-3d btn-blue px-4 py-3 rounded-xl font-bold text-sm whitespace-nowrap">3,000 💎</button>
+                    </div>
+                    <div class="bg-slate-700/50 border border-slate-600 rounded-2xl p-4 flex justify-between items-center sm:col-span-2">
+                        <div>
+                            <div class="text-lg font-bold text-white mb-1">🌌 하이퍼엔드 드림 팩</div>
+                            <div class="text-xs text-slate-300">초희귀 하이퍼카 4종 (초월~뽑기불가)</div>
+                        </div>
+                        <button onclick="buyCarPack('hyper')" class="btn-3d btn-pink px-8 py-3 rounded-xl font-bold text-sm whitespace-nowrap">10,000 💎</button>
+                    </div>
+                    <div class="bg-gradient-to-r from-red-900/80 to-pink-900/80 border-2 border-red-400 rounded-2xl p-4 flex justify-between items-center sm:col-span-2 shadow-lg">
+                        <div>
+                            <div class="text-xl font-bold text-yellow-300 mb-1">👑 모든 자동차 팩 (All Cars Pack)</div>
+                            <div class="text-xs text-red-100">일반부터 뽑기불가까지 자동차 40종 100% 일괄 지급! (히든 제외)</div>
+                        </div>
+                        <button onclick="buyAllCarsPack()" class="btn-3d btn-yellow px-6 py-3 rounded-xl font-bold text-base whitespace-nowrap">5,000 ❤️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Garage -->
+            <div class="w-full bg-white rounded-3xl p-8 shadow-lg border-b-8 border-slate-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                    <h3 class="text-2xl font-bold text-slate-700 text-center">나의 차고 (보관함)</h3>
+                    <div class="flex gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-100 flex-wrap justify-center">
+                        <button onclick="mergeCars('일반', '레어', 2)" class="btn-3d btn-blue text-sm px-3 py-2 rounded-xl font-bold">🛠️ 일반 2 ➔ 레어</button>
+                        <button onclick="mergeCars('레어', '전설', 3)" class="btn-3d btn-yellow text-sm px-3 py-2 rounded-xl font-bold">🌟 레어 3 ➔ 전설</button>
+                        <button onclick="mergeCars('전설', '신화', 3)" class="btn-3d btn-pink text-sm px-3 py-2 rounded-xl font-bold">🔮 전설 3 ➔ 신화</button>
+                        <button onclick="mergeCars('신화', '초월', 3)" class="btn-3d btn-white border-yellow-500 text-yellow-600 text-sm px-3 py-2 rounded-xl font-bold">🌌 신화 3 ➔ 초월</button>
+                        <button onclick="mergeCars('초월', '불멸', 3)" class="btn-3d btn-white border-red-500 text-red-600 text-sm px-3 py-2 rounded-xl font-bold">🔥 초월 3 ➔ 불멸</button>
+                        <button onclick="mergeCars('불멸', '개발자', 3)" class="btn-3d btn-white border-purple-800 text-purple-900 text-sm px-3 py-2 rounded-xl font-bold">💻 불멸 3 ➔ 개발자</button>
+                        <button onclick="mergeCars('개발자', '뽑기불가', 3)" class="btn-3d btn-white border-black text-black text-sm px-3 py-2 rounded-xl font-bold">🚫 개발자 3 ➔ 뽑기불가</button>
+                        <button id="hidden-merge-btn" onclick="mergeCars('개발자', '히든', 30)" class="hidden btn-3d bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-amber-300 border-2 border-amber-400 text-sm px-3 py-2 rounded-xl font-bold items-center gap-1 animate-pulse">
+                            <span>👑 개발자 30 ➔ 히든 (F1)</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="garage-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Admin Screen -->
+        <div id="admin-screen" class="w-full max-w-4xl hidden animate-pop-in flex-col items-center">
+            <div class="w-full flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border-2 border-slate-100 mb-6">
+                <button onclick="goHome()" class="text-slate-400 hover:text-slate-600 text-xl transition-colors">◀ 홈으로</button>
+                <div class="text-2xl font-bold text-purple-700">🛠️ 관리자 설정</div>
+                <div class="w-20"></div>
+            </div>
+            <div class="w-full bg-white rounded-3xl p-8 shadow-lg border-b-8 border-slate-200 flex flex-col gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-slate-700 text-lg">💰 재화 설정 (치트)</label>
+                    <div class="flex gap-2 flex-wrap sm:flex-nowrap">
+                        <input type="number" id="admin-point-input" class="cute-input flex-grow" placeholder="포인트 입력">
+                        <input type="number" id="admin-diamond-input" class="cute-input flex-grow" placeholder="다이아 입력">
+                        <input type="number" id="admin-ruby-input" class="cute-input flex-grow" placeholder="루비 입력">
+                        <button onclick="adminSetPoints()" class="btn-3d btn-green px-6 py-3 rounded-2xl font-bold whitespace-nowrap">적용</button>
+                    </div>
+                </div>
+                <hr class="border-slate-200">
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-slate-700 text-lg">🚗 인벤토리 자동차 추가 (치트)</label>
+                    <div class="flex gap-2 flex-col sm:flex-row">
+                        <select id="admin-car-rarity" class="cute-input sm:w-1/3 text-lg" onchange="updateAdminCarList()">
+                            <option value="일반">일반</option>
+                            <option value="레어">레어</option>
+                            <option value="전설">전설</option>
+                            <option value="신화">신화</option>
+                            <option value="초월">초월</option>
+                            <option value="불멸">불멸</option>
+                            <option value="개발자">개발자</option>
+                            <option value="뽑기불가">뽑기불가</option>
+                            <option value="히든">히든</option>
+                        </select>
+                        <select id="admin-car-select" class="cute-input sm:w-1/3 text-lg"></select>
+                        <button onclick="adminAddCar()" class="btn-3d btn-pink px-6 py-3 rounded-2xl font-bold sm:w-1/3">추가하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Settings Menu -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="settings-box">
+            <div class="w-full flex justify-end mb-2"><button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button></div>
+            <h3 class="text-2xl font-bold mb-6 text-slate-800">⚙️ 환경 설정</h3>
+            <div class="w-full flex flex-col gap-3">
+                <button onclick="openSoundSettings()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg">🔊 소리 설정</button>
+                <button onclick="openScreenSettings()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg">🖥️ 화면 설정</button>
+                <button onclick="showStats()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg text-blue-600">📊 학습 통계</button>
+                <button onclick="showRank()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg text-orange-600">🏅 내 등급 보기</button>
+                <button onclick="showHoF()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg">🏆 명예의 전당 (실시간 랭킹)</button>
+                <button onclick="openPointMenu()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg">🪙 포인트 & 상점</button>
+                <button onclick="openSyncExportModal()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg text-indigo-600 border-indigo-200">📲 카톡으로 계정 코드 보내기</button>
+                <button onclick="closeSettingsModal(); setTimeout(openCustomFirebaseModal, 300);" class="btn-3d btn-white py-2.5 rounded-2xl font-bold text-sm text-slate-500">☁️ 실시간 서버 연결 설정</button>
+                <button onclick="closeSettingsModal(); setTimeout(showIntroCreditAgain, 300);" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg text-purple-600 border-purple-200">🎬 크레딧 보기</button>
+                <button onclick="promptResetData()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg text-red-500 border-red-200">🗑️ 데이터 초기화</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Point Menu -->
+    <div id="point-menu-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center max-h-[90vh] overflow-y-auto" id="point-menu-box">
+            <div class="w-full flex justify-between mb-2">
+                <button onclick="openSettingsModal(true)" class="text-slate-400 hover:text-slate-700 text-xl font-bold">◀ 뒤로</button>
+                <button onclick="closePointMenu()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button>
+            </div>
+            <h3 class="text-2xl font-bold mb-4 text-slate-800">🪙 포인트 & 상점</h3>
+            <div class="w-full flex flex-col gap-2.5">
+                <button onclick="closePointMenu(); goGacha();" class="btn-3d btn-pink py-3 rounded-2xl font-bold text-lg">🎰 자동차 뽑기방 (50P)</button>
+                <button onclick="closePointMenu(); setTimeout(openRubyRoulette, 300);" class="btn-3d btn-yellow py-3 rounded-2xl font-bold text-lg">🎡 행운의 룰렛 (2 ❤️)</button>
+                <button onclick="closePointMenu(); setTimeout(triggerManualSurpriseDeal, 300);" class="btn-3d btn-white border-yellow-500 text-yellow-600 py-3 rounded-2xl font-bold text-lg">⚡ 깜짝 딜 상점 (희귀차)</button>
+                <button onclick="closePointMenu(); setTimeout(openDiamondShop, 300);" class="btn-3d btn-blue py-3 rounded-2xl font-bold text-lg">💎 다이아 상점 (포인트 교환)</button>
+                <button onclick="closePointMenu(); setTimeout(openRubyShop, 300);" class="btn-3d btn-pink py-3 rounded-2xl font-bold text-lg">❤️ 루비 상점 (다이아 교환)</button>
+                <hr class="border-slate-200 my-1">
+                <button onclick="doAttendance()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg text-blue-600">📅 매일 출석체크</button>
+                <button onclick="toggleSavings()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg text-green-600" id="savings-btn">🏦 포인트 적금 가입</button>
+                <button onclick="openPointSettings()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg">⚙️ 포인트 설정</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Point Settings Menu -->
+    <div id="point-settings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="point-settings-box">
+            <div class="w-full flex justify-between mb-2">
+                <button onclick="openPointMenu(true)" class="text-slate-400 hover:text-slate-700 text-xl font-bold">◀ 뒤로</button>
+                <button onclick="closePointSettings()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button>
+            </div>
+            <h3 class="text-2xl font-bold mb-6 text-slate-800">⚙️ 포인트 설정</h3>
+            <div class="w-full flex flex-col gap-3">
+                <button onclick="openCouponModal()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg">🎟️ 쿠폰 등록</button>
+                <button onclick="openMyPointMenu()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg">💳 MY포인트</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MY포인트 Menu -->
+    <div id="my-point-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="my-point-box">
+            <div class="w-full flex justify-between mb-2">
+                <button onclick="openPointSettings(true)" class="text-slate-400 hover:text-slate-700 text-xl font-bold">◀ 뒤로</button>
+                <button onclick="closeMyPointMenu()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button>
+            </div>
+            <h3 class="text-2xl font-bold mb-6 text-slate-800">💳 MY포인트</h3>
+            <div class="w-full flex flex-col gap-3">
+                <button onclick="closeMyPointMenu(); setTimeout(openRubyRoulette, 300);" class="btn-3d btn-yellow py-3 rounded-2xl font-bold text-lg">🎡 행운의 룰렛 (2 ❤️)</button>
+                <button onclick="openMyPointSettings()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg">⚙️ 설정</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MY포인트 설정 Menu -->
+    <div id="my-point-settings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="my-point-settings-box">
+            <div class="w-full flex justify-between mb-2">
+                <button onclick="openMyPointMenu(true)" class="text-slate-400 hover:text-slate-700 text-xl font-bold">◀ 뒤로</button>
+                <button onclick="closeMyPointSettings()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button>
+            </div>
+            <h3 class="text-2xl font-bold mb-6 text-slate-800">⚙️ MY포인트 설정</h3>
+            <div class="w-full flex flex-col gap-3">
+                <button onclick="openAdminPwdModal()" class="btn-3d btn-white py-3 rounded-2xl font-bold text-lg text-slate-400">개발자관리</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div id="admin-pwd-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="admin-pwd-box">
+            <div class="w-full flex justify-between mb-2">
+                <button onclick="closeAdminPwdModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">◀ 취소</button>
+            </div>
+            <h3 class="text-2xl font-bold mb-6 text-slate-800">🔒 관리자 인증</h3>
+            <input type="password" id="admin-pwd-input" class="cute-input mb-4" placeholder="비밀번호 입력">
+            <button onclick="checkAdminPwd()" class="btn-3d btn-pink py-3 px-8 w-full rounded-2xl font-bold text-lg">확인</button>
+        </div>
+    </div>
+
+    <!-- Hall of Fame (실시간 랭킹) Modal -->
+    <div id="hof-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-b-8 border-slate-200 max-w-lg w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center max-h-[90vh]" id="hof-box">
+            <div class="w-full flex justify-between items-center mb-2">
+                <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-bold text-xs border border-amber-300">실시간 순위표</span>
+                <button onclick="closeHoFModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button>
+            </div>
+            <h3 class="text-3xl font-bold mb-4 text-slate-800">🏆 명예의 전당</h3>
+
+            <div class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl p-4 mb-4 flex justify-between items-center shadow-md">
+                <div class="text-left">
+                    <div class="text-xs text-blue-100">나의 현재 순위</div>
+                    <div class="text-xl font-bold" id="hof-my-rank-text">계산 중...</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-blue-100" id="hof-my-score-label">종합 점수</div>
+                    <div class="text-xl font-bold text-yellow-300" id="hof-my-score-val">0 점</div>
+                </div>
+            </div>
+
+            <div class="w-full bg-slate-100 p-1.5 rounded-2xl grid grid-cols-3 gap-1 mb-4">
+                <button id="hof-tab-total" onclick="switchHoFTab('total')" class="py-2 rounded-xl font-bold text-sm bg-white text-amber-600 shadow-sm transition-all">👑 종합 랭킹</button>
+                <button id="hof-tab-points" onclick="switchHoFTab('points')" class="py-2 rounded-xl font-bold text-sm text-slate-500 transition-all">🪙 포인트왕</button>
+                <button id="hof-tab-solved" onclick="switchHoFTab('solved')" class="py-2 rounded-xl font-bold text-sm text-slate-500 transition-all">📚 학습왕</button>
+            </div>
+
+            <div id="hof-list-container" class="w-full flex-grow overflow-y-auto flex flex-col gap-2 pr-1"></div>
+        </div>
+    </div>
+
+    <!-- Sync Transfer Modal (구글 사이트용 카톡 코드 내보내기/불러오기) -->
+    <div id="sync-transfer-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[65] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-b-8 border-slate-200 max-w-md w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="sync-transfer-box">
+            <div class="w-full flex justify-end mb-1"><button onclick="closeSyncTransferModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button></div>
+            <h3 id="sync-modal-title" class="text-2xl font-bold mb-2 text-slate-800">📲 카톡으로 계정 코드 보내기</h3>
+            <p id="sync-modal-desc" class="text-sm text-slate-600 mb-4 leading-relaxed"></p>
+            <textarea id="sync-code-textarea" rows="4" class="w-full border-4 border-blue-400 bg-blue-50/40 rounded-2xl p-3 text-xs font-mono text-slate-800 mb-4 focus:border-blue-600 outline-none select-all" placeholder="여기에 계정 코드를 붙여넣으세요"></textarea>
+            <button id="sync-action-btn" class="btn-3d btn-green py-3.5 px-6 w-full rounded-2xl font-bold text-lg">코드 복사하기 📋</button>
+        </div>
+    </div>
+
+    <!-- Custom Firebase Server Config Modal -->
+    <div id="custom-fb-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[65] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-b-8 border-slate-200 max-w-md w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="custom-fb-box">
+            <div class="w-full flex justify-end mb-1"><button onclick="closeCustomFirebaseModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button></div>
+            <h3 class="text-2xl font-bold mb-2 text-slate-800">☁️ 실시간 서버 연결 설정</h3>
+            <p class="text-xs text-slate-500 mb-4 leading-relaxed">구글 사이트에서 코드 복사 없이 아이디/비밀번호만으로 실시간 동기화하려면, 무료 Firebase 프로젝트의 <b>firebaseConfig</b> 객체를 붙여넣고 저장하세요.</p>
+            <textarea id="custom-fb-textarea" rows="5" class="w-full border-2 border-slate-300 rounded-2xl p-3 text-xs font-mono text-slate-700 mb-4 focus:border-blue-500 outline-none" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}'></textarea>
+            <div class="flex gap-2 w-full">
+                <button onclick="resetCustomFirebaseConfig()" class="btn-3d btn-white py-3 px-4 w-1/3 rounded-2xl font-bold text-sm text-red-500">초기화</button>
+                <button onclick="saveCustomFirebaseConfig()" class="btn-3d btn-green py-3 px-6 w-2/3 rounded-2xl font-bold text-base">저장 및 연결하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diamond Shop Modal -->
+    <div id="diamond-shop-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="diamond-shop-box">
+            <div class="w-full flex justify-end mb-2"><button onclick="closeDiamondShop()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button></div>
+            <h3 class="text-2xl font-bold mb-6 text-slate-800">💎 다이아 상점</h3>
+            <p class="text-slate-500 mb-6">포인트를 다이아로 교환하세요!</p>
+            <div class="w-full flex flex-col gap-3">
+                <button onclick="buyDiamonds(1)" class="btn-3d btn-blue py-3 rounded-2xl font-bold text-lg">💎 1개 (100P)</button>
+                <button onclick="buyDiamonds(5)" class="btn-3d btn-blue py-3 rounded-2xl font-bold text-lg">💎 5개 (500P)</button>
+                <button onclick="buyDiamonds(10)" class="btn-3d btn-blue py-3 rounded-2xl font-bold text-lg">💎 10개 (1,000P)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ruby Shop Modal -->
+    <div id="ruby-shop-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="ruby-shop-box">
+            <div class="w-full flex justify-end mb-2"><button onclick="closeRubyShop()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button></div>
+            <h3 class="text-2xl font-bold mb-2 text-slate-800">❤️ 루비 상점</h3>
+            <p class="text-slate-500 mb-6">다이아를 루비로 교환하세요! (1 ❤️ = 10 💎)</p>
+            <div class="w-full flex flex-col gap-3">
+                <button onclick="buyRubies(1)" class="btn-3d btn-pink py-3 rounded-2xl font-bold text-lg">❤️ 1개 (10 💎)</button>
+                <button onclick="buyRubies(10)" class="btn-3d btn-pink py-3 rounded-2xl font-bold text-lg">❤️ 10개 (100 💎)</button>
+                <button onclick="buyRubies(100)" class="btn-3d btn-pink py-3 rounded-2xl font-bold text-lg">❤️ 100개 (1,000 💎)</button>
+                <button onclick="buyRubies(1000)" class="btn-3d btn-yellow py-3 rounded-2xl font-bold text-lg">❤️ 1,000개 (10,000 💎)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ruby Roulette Modal -->
+    <div id="ruby-roulette-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-md w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="ruby-roulette-box">
+            <div class="w-full flex justify-between items-center mb-2">
+                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold text-sm border border-red-300">보유: ❤️ <span id="roulette-ruby-count">0</span></span>
+                <button onclick="closeRubyRoulette()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button>
+            </div>
+            <h3 class="text-3xl font-bold mb-2 text-slate-800">🎡 루비 행운의 룰렛</h3>
+            <p class="text-slate-500 mb-6">루비 2개로 대박 보상을 노려보세요!</p>
+
+            <div class="relative w-56 h-56 mb-6 flex items-center justify-center">
+                <div class="absolute -top-3 z-20 text-3xl drop-shadow-md">🔻</div>
+                <div id="roulette-wheel" class="w-full h-full rounded-full border-8 border-yellow-400 shadow-xl flex items-center justify-center relative overflow-hidden" style="background: conic-gradient(#fde047 0deg 45deg, #93c5fd 45deg 90deg, #f9a8d4 90deg 135deg, #fb923c 135deg 180deg, #38bdf8 180deg 225deg, #f43f5e 225deg 270deg, #86efac 270deg 315deg, #c084fc 315deg 360deg); transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);">
+                    <div class="w-16 h-16 bg-white rounded-full shadow-inner border-4 border-yellow-300 flex items-center justify-center text-2xl z-10 font-bold">
+                        ❤️
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1.5 w-full text-xs text-left bg-slate-50 p-3 rounded-2xl border border-slate-200 mb-6">
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-yellow-300 inline-block shrink-0"></span> 🪙 2,000 P</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-300 inline-block shrink-0"></span> 💎 다이아 20개</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-pink-300 inline-block shrink-0"></span> ❤️ 루비 2개</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-orange-400 inline-block shrink-0"></span> 🪙 5,000 P</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-sky-400 inline-block shrink-0"></span> 💎 다이아 50개</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block shrink-0"></span> ❤️ 루비 5개</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-300 inline-block shrink-0"></span> 🌟 전설 자동차</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-purple-400 inline-block shrink-0"></span> 🔮 신화~초월 자동차</div>
+            </div>
+
+            <button id="spin-roulette-btn" onclick="spinRubyRoulette()" class="btn-3d btn-pink text-xl px-8 py-4 rounded-2xl w-full font-bold shadow-lg">
+                룰렛 돌리기 (2 ❤️)
+            </button>
+        </div>
+    </div>
+
+    <!-- Coupon Modal -->
+    <div id="coupon-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="coupon-box">
+            <div class="w-full flex justify-end mb-2"><button onclick="closeCouponModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold">✕</button></div>
+            <h3 class="text-2xl font-bold mb-6 text-slate-800">🎟️ 쿠폰 등록</h3>
+            <input type="text" id="coupon-input" class="cute-input mb-4" placeholder="코드 입력 (예: MATH2026)">
+            <button onclick="submitCoupon()" class="btn-3d btn-pink py-3 px-8 w-full rounded-2xl font-bold text-lg">등록하기</button>
+        </div>
+    </div>
+
+    <!-- Surprise Deal Modal -->
+    <div id="surprise-deal-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-[70] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-gradient-to-br from-yellow-200 to-red-300 rounded-3xl p-1 shadow-2xl max-w-md w-full transform scale-90 transition-transform duration-300" id="surprise-deal-box">
+            <div class="bg-white rounded-[1.4rem] p-8 flex flex-col items-center text-center">
+                <h3 class="text-3xl font-bold mb-2 text-red-600 animate-pulse">깜짝 딜! ⚡</h3>
+                <p class="text-slate-600 mb-4 font-bold">초희귀 자동차를 획득할 기회!</p>
+                <div id="surprise-car-display" class="flex flex-col items-center justify-center py-6 px-4 rounded-2xl border-4 shadow-md w-full mb-6"></div>
+                <div class="flex gap-2 w-full">
+                    <button onclick="declineSurpriseDeal()" class="btn-3d btn-white w-1/2 py-3 rounded-2xl font-bold text-sm">포기하기</button>
+                    <button id="surprise-buy-btn" class="btn-3d btn-yellow w-1/2 py-3 rounded-2xl font-bold text-sm">구매하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="modal-content-box">
+            <div id="modal-icon" class="text-6xl mb-4">⭕</div>
+            <h3 id="modal-title" class="text-3xl font-bold mb-2 text-slate-800">정답입니다!</h3>
+            <div id="modal-desc" class="text-lg text-slate-500 mb-8 w-full">아주 잘했어요!</div>
+            <button id="modal-btn" class="btn-3d btn-blue text-xl px-8 py-3 rounded-2xl w-full font-bold">다음 문제 ➔</button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl border-b-8 border-slate-200 max-w-sm w-full transform scale-90 transition-transform duration-300 flex flex-col items-center text-center" id="confirm-box">
+            <h3 id="confirm-title" class="text-2xl font-bold mb-4 text-slate-800">확인</h3>
+            <p id="confirm-desc" class="text-slate-600 mb-6">정말 진행하시겠습니까?</p>
+            <div class="flex gap-2 w-full">
+                <button onclick="closeConfirmModal()" class="btn-3d btn-white w-1/2 py-3 rounded-2xl font-bold">취소</button>
+                <button id="confirm-btn" class="btn-3d btn-pink w-1/2 py-3 rounded-2xl font-bold">확인</button>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { initializeFirestore, memoryLocalCache, doc, setDoc, getDoc, getDocs, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    window.addEventListener('unhandledrejection', (event) => {
+        if (event.reason && String(event.reason).includes('FIRESTORE')) {
+            event.preventDefault();
+        }
+    });
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'math-playground-v3-beta-v1';
+
+    let firebaseConfig = null;
+    try {
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config;
+        }
+    } catch (e) {}
+
+    if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+        try {
+            const customRaw = localStorage.getItem('math_playground_v3_beta_custom_fb_config_v1');
+            if (customRaw) firebaseConfig = JSON.parse(customRaw);
+        } catch (e) {}
+    }
+
+    let db, auth, userId;
+    let isSaving = false;
+    let pendingSaveData = null;
+
+    function updateCloudBadge(isOnline) {
+        const badge = document.getElementById('cloud-status-badge');
+        const icon = document.getElementById('cloud-status-icon');
+        const text = document.getElementById('cloud-status-text');
+        if (!badge || !icon || !text) return;
+        if (isOnline) {
+            badge.className = 'bg-sky-50 text-sky-700 px-3 py-1 rounded-full text-xs sm:text-sm font-bold border border-sky-200 flex items-center gap-1 shadow-sm';
+            icon.textContent = '☁️';
+            text.textContent = '실시간 서버 연결됨';
+        } else {
+            badge.className = 'bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs sm:text-sm font-bold border border-slate-200 flex items-center gap-1 shadow-sm';
+            icon.textContent = '📱';
+            text.textContent = '기기 저장 모드';
+        }
+    }
+
+    if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = initializeFirestore(app, {
+            localCache: memoryLocalCache(),
+            experimentalAutoDetectLongPolling: true
+        });
+
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                userId = auth.currentUser?.uid;
+                if (userId) {
+                    updateCloudBadge(true);
+                    subscribeToData();
+                }
+            } catch (error) {
+                updateCloudBadge(false);
+            }
+        };
+        initAuth();
+    } else {
+        updateCloudBadge(false);
+    }
+
+    function subscribeToData() {
+        const docRef = doc(db, 'artifacts', appId, 'users', userId, 'userData', 'main');
+        onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists() && !docSnap.metadata.hasPendingWrites) {
+                const data = docSnap.data();
+                if (window.updateStateFromCloud) {
+                    window.updateStateFromCloud(data);
+                }
+            }
+        }, () => {});
+    }
+
+    async function flushCloudSave() {
+        if (!db || !userId || isSaving || !pendingSaveData) return;
+        isSaving = true;
+        const dataToSave = pendingSaveData;
+        pendingSaveData = null;
+
+        try {
+            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'userData', 'main');
+            await setDoc(docRef, dataToSave, { merge: true });
+        } catch (err) {
+        } finally {
+            isSaving = false;
+            if (pendingSaveData) flushCloudSave();
+        }
+    }
+
+    window.saveDataToCloud = function(data) {
+        if (!db || !userId) return;
+        pendingSaveData = data;
+        flushCloudSave();
+    };
+
+    window.saveAccountToCloud = async function(accountId, accountInfo) {
+        if (!db || !userId || !accountId) return;
+        try {
+            const accRef = doc(db, 'artifacts', appId, 'public', 'data', 'accounts', accountId);
+            await setDoc(accRef, accountInfo, { merge: true });
+        } catch (err) {}
+    };
+
+    window.fetchAccountFromCloud = async function(accountId) {
+        if (!db || !userId || !accountId) return null;
+        try {
+            const accRef = doc(db, 'artifacts', appId, 'public', 'data', 'accounts', accountId);
+            const snap = await getDoc(accRef);
+            return snap.exists() ? snap.data() : null;
+        } catch (err) {
+            return null;
+        }
+    };
+
+    window.fetchUserDataFromCloud = async function(accountId) {
+        if (!db || !userId || !accountId) return null;
+        try {
+            const dataRef = doc(db, 'artifacts', appId, 'public', 'data', 'userSaves', accountId);
+            const snap = await getDoc(dataRef);
+            return snap.exists() ? snap.data() : null;
+        } catch (err) {
+            return null;
+        }
+    };
+
+    window.saveSharedUserDataToCloud = async function(accountId, payload) {
+        if (!db || !userId || !accountId || accountId === 'guest') return;
+        try {
+            const dataRef = doc(db, 'artifacts', appId, 'public', 'data', 'userSaves', accountId);
+            await setDoc(dataRef, { ...payload, accountId }, { merge: true });
+        } catch (err) {}
+    };
+
+    window.fetchAllLeaderboardPlayers = async function() {
+        if (!db || !userId) return [];
+        try {
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'userSaves');
+            const snap = await getDocs(colRef);
+            const list = [];
+            snap.forEach(d => list.push({ accountId: d.id, ...d.data() }));
+            return list;
+        } catch (err) {
+            return [];
+        }
+    };
+</script>
+<script>
+    // --- Curriculum Data (2022 개정 교육과정 초6 ~ 중3 전 단원) ---
+    const frac = (n, d) => `<div class="math-fraction"><span class="numerator">${n}</span><span>${d}</span></div>`;
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    const gradesInfo = [
+        { id: 'elem6', name: '초6', fullName: '초등학교 6학년', icon: '🎒', color: 'btn-yellow' },
+        { id: 'mid1', name: '중1', fullName: '중학교 1학년', icon: '📘', color: 'btn-green' },
+        { id: 'mid2', name: '중2', fullName: '중학교 2학년', icon: '📗', color: 'btn-blue' },
+        { id: 'mid3', name: '중3', fullName: '중학교 3학년', icon: '📕', color: 'btn-pink' }
+    ];
+
+    const curriculum = {
+        elem6: {
+            1: [
+                { id: 1, title: '1. 분수의 나눗셈', icon: '🍕', color: 'btn-pink' },
+                { id: 2, title: '2. 각기둥과 각뿔', icon: '⛺', color: 'btn-green' },
+                { id: 3, title: '3. 소수의 나눗셈', icon: '💧', color: 'btn-blue' },
+                { id: 4, title: '4. 비와 비율', icon: '⚖️', color: 'btn-yellow' },
+                { id: 5, title: '5. 여러 가지 그래프', icon: '📊', color: 'btn-pink' },
+                { id: 6, title: '6. 직육면체의 부피와 겉넓이', icon: '📦', color: 'btn-blue' }
+            ],
+            2: [
+                { id: 1, title: '1. 분수의 나눗셈', icon: '🍰', color: 'btn-pink' },
+                { id: 2, title: '2. 소수의 나눗셈', icon: '💦', color: 'btn-blue' },
+                { id: 3, title: '3. 공간과 입체', icon: '🧱', color: 'btn-green' },
+                { id: 4, title: '4. 비례식과 비례배분', icon: '➗', color: 'btn-yellow' },
+                { id: 5, title: '5. 원의 둘레와 넓이', icon: '⭕', color: 'btn-pink' },
+                { id: 6, title: '6. 원기둥, 원뿔, 구', icon: '🥫', color: 'btn-blue' }
+            ]
+        },
+        mid1: {
+            1: [
+                { id: 1, title: '1. 소인수분해', icon: '🔢', color: 'btn-yellow' },
+                { id: 2, title: '2. 정수와 유리수', icon: '➕', color: 'btn-blue' },
+                { id: 3, title: '3. 문자와 식', icon: '🔤', color: 'btn-pink' },
+                { id: 4, title: '4. 좌표평면과 그래프', icon: '📈', color: 'btn-green' }
+            ],
+            2: [
+                { id: 1, title: '1. 기본 도형', icon: '📐', color: 'btn-blue' },
+                { id: 2, title: '2. 작도와 합동', icon: '🧭', color: 'btn-green' },
+                { id: 3, title: '3. 평면도형의 성질', icon: '⬡', color: 'btn-yellow' },
+                { id: 4, title: '4. 입체도형의 성질', icon: '🧊', color: 'btn-pink' },
+                { id: 5, title: '5. 자료의 정리와 해석', icon: '📊', color: 'btn-blue' }
+            ]
+        },
+        mid2: {
+            1: [
+                { id: 1, title: '1. 유리수와 순환소수', icon: '♾️', color: 'btn-pink' },
+                { id: 2, title: '2. 식의 계산', icon: '🧮', color: 'btn-yellow' },
+                { id: 3, title: '3. 일차부등식', icon: '⚖️', color: 'btn-green' },
+                { id: 4, title: '4. 연립일차방정식', icon: '🔗', color: 'btn-blue' },
+                { id: 5, title: '5. 일차함수와 그래프', icon: '📉', color: 'btn-pink' }
+            ],
+            2: [
+                { id: 1, title: '1. 삼각형의 성질', icon: '🔺', color: 'btn-green' },
+                { id: 2, title: '2. 사각형의 성질', icon: '🔷', color: 'btn-blue' },
+                { id: 3, title: '3. 도형의 닮음', icon: '🔍', color: 'btn-yellow' },
+                { id: 4, title: '4. 피타고라스 정리', icon: '📐', color: 'btn-pink' },
+                { id: 5, title: '5. 확률', icon: '🎲', color: 'btn-green' }
+            ]
+        },
+        mid3: {
+            1: [
+                { id: 1, title: '1. 제곱근과 실수', icon: '√', color: 'btn-blue' },
+                { id: 2, title: '2. 다항식의 곱셈과 인수분해', icon: '🧩', color: 'btn-pink' },
+                { id: 3, title: '3. 이차방정식', icon: '✖️', color: 'btn-yellow' },
+                { id: 4, title: '4. 이차함수와 그래프', icon: '〰️', color: 'btn-green' }
+            ],
+            2: [
+                { id: 1, title: '1. 삼각비', icon: '📏', color: 'btn-yellow' },
+                { id: 2, title: '2. 원의 성질', icon: '🎡', color: 'btn-blue' },
+                { id: 3, title: '3. 통계', icon: '📉', color: 'btn-pink' }
+            ]
+        }
+    };
+
+    // --- Question Generators (난이도 상향 버전: 초6 ~ 중3 전 단원) ---
+    function generateQuestion(grade, semester, unitId) {
+        let q = '', ans = '', options = [];
+        let qType = rand(0, 1) === 0 ? 'mcq' : 'short';
+
+        if (grade === 'elem6' && semester === 1) {
+            if (unitId === 1) {
+                const b = rand(5, 12), c = rand(2, 5), qVal = rand(3, 8);
+                const a = c * qVal;
+                const whole = Math.floor(a / b), rem = a % b;
+                const expr = (whole > 0 && rem > 0) ? `${whole}와 ${frac(rem, b)}` : `${frac(a, b)}`;
+                q = `${expr} &divide; ${frac(c, b)} 의 계산 결과는?`;
+                ans = qVal.toString();
+            } else if (unitId === 2) {
+                const shapes = ['오각', '육각', '칠각', '팔각', '구각', '십각'];
+                const nValues = [5, 6, 7, 8, 9, 10];
+                const sIdx = rand(0, 5), n = nValues[sIdx], qKind = rand(0, 2);
+                if (qKind === 0) {
+                    q = `${shapes[sIdx]}기둥의 (꼭짓점의 수 + 모서리의 수 - 면의 수)는 얼마인가요?`;
+                    ans = (n * 2 + n * 3 - (n + 2)).toString();
+                } else if (qKind === 1) {
+                    q = `${shapes[sIdx]}뿔의 모서리 수와 ${shapes[sIdx]}기둥의 면의 수의 합은?`;
+                    ans = (n * 2 + (n + 2)).toString();
+                } else {
+                    const edges = n * 3;
+                    q = `모서리가 ${edges}개인 각기둥의 꼭짓점과 면의 수의 합은?`;
+                    ans = (n * 2 + n + 2).toString();
+                }
+            } else if (unitId === 3) {
+                const a = rand(12, 35), divisor = rand(3, 9);
+                const dividend = ((a * divisor) / 100).toFixed(2);
+                const divStr = (divisor / 10).toFixed(1);
+                q = `${dividend} &divide; ${divStr} 의 계산 결과에 10을 곱한 값은?`;
+                ans = a.toString();
+            } else if (unitId === 4) {
+                const base = [2000, 4000, 5000, 8000, 10000][rand(0, 4)];
+                const rate = [15, 20, 25, 30, 35, 40][rand(0, 5)];
+                q = `정가가 ${base}원인 물건을 ${rate}% 할인하여 살 때, 지불해야 하는 금액은 몇 원인가요?`;
+                ans = (base * (100 - rate) / 100).toString();
+            } else if (unitId === 5) {
+                const total = [200, 300, 400, 500][rand(0, 3)];
+                const p1 = [25, 30, 35, 40][rand(0, 3)];
+                const p2 = [10, 15, 20][rand(0, 2)];
+                q = `전체 학생 ${total}명 중 운동을 좋아하는 학생은 ${p1}%, 독서를 좋아하는 학생은 ${p2}%입니다. 두 항목의 학생 수 차이는 몇 명인가요?`;
+                ans = ((total * (p1 - p2)) / 100).toString();
+            } else {
+                const w = rand(4, 9), d = rand(3, 8), h = rand(2, 7);
+                if (rand(0, 1) === 0) {
+                    q = `가로 ${w}cm, 세로 ${d}cm, 높이 ${h}cm인 직육면체의 겉넓이는 몇 cm&sup2; 인가요?`;
+                    ans = (2 * (w * d + d * h + h * w)).toString();
+                } else {
+                    const vol = w * d * h;
+                    q = `부피가 ${vol}cm&sup3;이고 가로가 ${w}cm, 세로가 ${d}cm인 직육면체의 모든 모서리 길이의 합은 몇 cm인가요?`;
+                    ans = (4 * (w + d + h)).toString();
+                }
+            }
+        } else if (grade === 'elem6' && semester === 2) {
+            if (unitId === 1) {
+                const b = rand(4, 11), c = rand(2, 5);
+                const cleanA = c * rand(2, 6);
+                q = `${cleanA} &divide; ${frac(c, b)} 의 계산 결과는?`;
+                ans = ((cleanA * b) / c).toString();
+            } else if (unitId === 2) {
+                const a = rand(14, 38), b = rand(3, 8);
+                q = `${((a * b) / 100).toFixed(2)} &divide; ${(b / 100).toFixed(2)} 의 계산 결과는?`;
+                ans = a.toString();
+            } else if (unitId === 3) {
+                const f = rand(5, 9), s = rand(3, f), t = rand(1, s), fourth = rand(0, t);
+                q = `쌓기나무를 1층에 ${f}개, 2층에 ${s}개, 3층에 ${t}개, 4층에 ${fourth}개 쌓았을 때 사용한 쌓기나무의 총 개수는?`;
+                ans = (f + s + t + fourth).toString();
+            } else if (unitId === 4) {
+                const r1 = rand(2, 5), r2 = rand(3, 7);
+                const unitVal = rand(15, 40);
+                const total = (r1 + r2) * unitVal;
+                q = `${total}개의 사탕을 민수와 지혜가 ${r1} : ${r2} 로 비례배분할 때, 더 많이 받는 사람의 사탕 개수는?`;
+                ans = (Math.max(r1, r2) * unitVal).toString();
+            } else if (unitId === 5) {
+                const r = rand(4, 12);
+                if (rand(0, 1) === 0) {
+                    q = `원주율이 3일 때, 반지름이 ${r}cm인 원의 넓이는 몇 cm&sup2; 인가요?`;
+                    ans = (r * r * 3).toString();
+                } else {
+                    const circ = r * 2 * 3;
+                    q = `원주율이 3일 때, 원주가 ${circ}cm인 원의 넓이는 몇 cm&sup2; 인가요?`;
+                    ans = (r * r * 3).toString();
+                }
+            } else {
+                const n = rand(5, 12);
+                q = `밑면이 ${n}각형인 각기둥의 모서리 수와 각뿔의 꼭짓점 수의 합은?`;
+                ans = (n * 3 + (n + 1)).toString();
+            }
+        } else if (grade === 'mid1') {
+            if (semester === 1) {
+                if (unitId === 1) {
+                    const p1 = [2, 3][rand(0, 1)], p2 = [5, 7, 11][rand(0, 2)];
+                    const e1 = rand(2, 4), e2 = rand(1, 3);
+                    const num = Math.pow(p1, e1) * Math.pow(p2, e2);
+                    q = `자연수 ${num}의 양의 약수의 개수는 모두 몇 개인가요?`;
+                    ans = ((e1 + 1) * (e2 + 1)).toString();
+                } else if (unitId === 2) {
+                    const a = rand(-8, -2), b = rand(-5, -2), c = rand(4, 15);
+                    q = `(${a}) &times; (${b}) - (+${c}) 의 계산 결과는?`;
+                    ans = (a * b - c).toString();
+                } else if (unitId === 3) {
+                    const a = rand(2, 5), b = rand(1, 6), c = rand(2, 4), x = rand(2, 8);
+                    const rhs = a * (x - b) + c * x;
+                    q = `일차방정식 ${a}(x - ${b}) + ${c}x = ${rhs} 의 해 x는?`;
+                    ans = x.toString();
+                } else {
+                    const x1 = rand(3, 8), y1 = rand(4, 12);
+                    const a = x1 * y1;
+                    const divisors = [];
+                    for (let d = 2; d <= a; d++) if (a % d === 0 && d !== x1) divisors.push(d);
+                    const x2 = divisors[rand(0, divisors.length - 1)] || 1;
+                    q = `y가 x에 반비례하고 x = ${x1}일 때 y = ${y1}입니다. x = ${x2}일 때 y의 값은?`;
+                    ans = (a / x2).toString();
+                }
+            } else {
+                if (unitId === 1) {
+                    const a = rand(2, 4), b = rand(10, 40), x = rand(15, 35);
+                    const other = 180 - (a * x + b);
+                    q = `한 직선 위의 두 각이 (${a}x + ${b})&deg;와 ${other}&deg;일 때, x의 값은?`;
+                    ans = x.toString();
+                } else if (unitId === 2) {
+                    const a = rand(6, 12), b = rand(7, 14), c = rand(8, 15);
+                    q = `&triangle;ABC &equiv; &triangle;DEF이고 AB = ${a}cm, BC = ${b}cm, &triangle;DEF의 둘레가 ${a + b + c}cm일 때, 변 DF의 길이는 몇 cm인가요?`;
+                    ans = c.toString();
+                } else if (unitId === 3) {
+                    const n = rand(6, 12);
+                    if (rand(0, 1) === 0) {
+                        q = `${n}각형의 대각선의 총 개수는 몇 개인가요?`;
+                        ans = ((n * (n - 3)) / 2).toString();
+                    } else {
+                        const validN = [5, 6, 8, 9, 10, 12, 15, 18, 20][rand(0, 8)];
+                        q = `정${validN}각형의 한 외각의 크기는 몇 도(&deg;)인가요?`;
+                        ans = (360 / validN).toString();
+                    }
+                } else if (unitId === 4) {
+                    const solids = [
+                        { name: '정사면체', v: 4, e: 6, f: 4 },
+                        { name: '정육면체', v: 8, e: 12, f: 6 },
+                        { name: '정팔면체', v: 6, e: 12, f: 8 },
+                        { name: '정십이면체', v: 20, e: 30, f: 12 },
+                        { name: '정이십면체', v: 12, e: 30, f: 20 }
+                    ];
+                    const s = solids[rand(0, solids.length - 1)];
+                    q = `${s.name}의 (꼭짓점의 개수 + 모서리의 개수 + 면의 개수)는 얼마인가요?`;
+                    ans = (s.v + s.e + s.f).toString();
+                } else {
+                    const total = [50, 80, 100, 120, 200][rand(0, 4)];
+                    const rel = [0.15, 0.2, 0.25, 0.3, 0.35][rand(0, 4)];
+                    const freq = Math.round(total * rel);
+                    q = `어떤 계급의 도수가 ${freq}명이고 상대도수가 ${rel}일 때, 전체 도수는 몇 명인가요?`;
+                    ans = total.toString();
+                }
+            }
+        } else if (grade === 'mid2') {
+            if (semester === 1) {
+                if (unitId === 1) {
+                    const valid = [13, 17, 23, 29, 31, 37, 41, 43, 47, 53][rand(0, 9)];
+                    q = `순환소수 0.${valid}${valid}... 를 기약분수로 나타낼 때, 분모와 분자의 합은?`;
+                    ans = (99 + valid).toString();
+                } else if (unitId === 2) {
+                    const a = rand(3, 6), b = rand(2, 4), c = rand(2, 5);
+                    q = `(x<sup>${a}</sup>)<sup>${b}</sup> &divide; x<sup>${c}</sup> = x<sup>k</sup> 일 때, k의 값은?`;
+                    ans = (a * b - c).toString();
+                } else if (unitId === 3) {
+                    const a = rand(3, 7), b = rand(2, 8), x = rand(4, 11);
+                    const rhs = a * x - b + 1;
+                    q = `일차부등식 ${a}x - ${b} &lt; ${rhs} 를 만족하는 자연수 x의 개수는?`;
+                    ans = x.toString();
+                } else if (unitId === 4) {
+                    const x = rand(2, 7), y = rand(2, 7);
+                    const eq1 = 2 * x + 3 * y;
+                    const eq2 = 3 * x - y;
+                    q = `연립방정식 2x + 3y = ${eq1}, 3x - y = ${eq2} 에서 x + y의 값은?`;
+                    ans = (x + y).toString();
+                } else {
+                    const a = rand(-4, 5) || 2, b = rand(-6, 9);
+                    const x1 = rand(1, 3), x2 = x1 + rand(2, 4);
+                    const y1 = a * x1 + b, y2 = a * x2 + b;
+                    q = `두 점 (${x1}, ${y1}), (${x2}, ${y2})를 지나는 일차함수의 그래프의 y절편은?`;
+                    ans = b.toString();
+                }
+            } else {
+                if (unitId === 1) {
+                    const a = rand(25, 42);
+                    q = `삼각형 ABC의 내심 I에 대하여 &angle;A = ${a * 2}&deg;일 때, &angle;BIC의 크기는 몇 도(&deg;)인가요?`;
+                    ans = (90 + a).toString();
+                } else if (unitId === 2) {
+                    const r1 = [1, 2, 3][rand(0, 2)], r2 = [2, 3, 5, 7][rand(0, 3)];
+                    if ((180 % (r1 + r2)) === 0 && r1 !== r2) {
+                        const big = (180 / (r1 + r2)) * Math.max(r1, r2);
+                        q = `평행사변형 ABCD에서 &angle;A : &angle;B = ${r1} : ${r2} 일 때, 큰 각의 크기는 몇 도(&deg;)인가요?`;
+                        ans = big.toString();
+                    } else {
+                        q = `평행사변형 ABCD에서 &angle;A : &angle;B = 2 : 3 일 때, &angle;B의 크기는 몇 도(&deg;)인가요?`;
+                        ans = '108';
+                    }
+                } else if (unitId === 3) {
+                    const k = rand(2, 5), area1 = rand(4, 12);
+                    q = `닮음비가 1 : ${k}인 두 닮은 평면도형에서 작은 도형의 넓이가 ${area1}cm&sup2;일 때, 큰 도형의 넓이는 몇 cm&sup2; 인가요?`;
+                    ans = (area1 * k * k).toString();
+                } else if (unitId === 4) {
+                    const triples = [[5, 12, 13], [8, 15, 17], [7, 24, 25], [9, 12, 15]];
+                    const t = triples[rand(0, triples.length - 1)];
+                    q = `빗변의 길이가 ${t[2]}cm이고 한 변의 길이가 ${t[0]}cm인 직각삼각형의 넓이는 몇 cm&sup2; 인가요?`;
+                    ans = ((t[0] * t[1]) / 2).toString();
+                } else {
+                    const sumTarget = [5, 6, 7, 8, 9][rand(0, 4)];
+                    let count = 0;
+                    for (let d1 = 1; d1 <= 6; d1++) {
+                        for (let d2 = 1; d2 <= 6; d2++) {
+                            if (d1 + d2 === sumTarget) count++;
+                        }
+                    }
+                    q = `서로 다른 두 개의 주사위를 동시에 던질 때, 나오는 눈의 수의 합이 ${sumTarget}이 되는 경우의 수는?`;
+                    ans = count.toString();
+                }
+            }
+        } else {
+            if (semester === 1) {
+                if (unitId === 1) {
+                    const a = rand(2, 6), b = rand(2, 5), k = [2, 3, 5][rand(0, 2)];
+                    q = `&radic;<span style="text-decoration:overline;">${a * a * k}</span> + &radic;<span style="text-decoration:overline;">${b * b * k}</span> = m&radic;<span style="text-decoration:overline;">${k}</span> 일 때, 자연수 m의 값은?`;
+                    ans = (a + b).toString();
+                } else if (unitId === 2) {
+                    const s = rand(5, 11), p = rand(3, 12);
+                    q = `x + y = ${s}, xy = ${p} 일 때, x<sup>2</sup> + y<sup>2</sup> 의 값은?`;
+                    ans = (s * s - 2 * p).toString();
+                } else if (unitId === 3) {
+                    const k = rand(3, 11);
+                    q = `이차방정식 x<sup>2</sup> - ${2 * k}x + a = 0 이 중근을 가질 때, 상수 a의 값은?`;
+                    ans = (k * k).toString();
+                } else {
+                    const a = rand(1, 3), p = rand(2, 6), qVal = rand(-8, 5);
+                    q = `이차함수 y = ${a}(x - ${p})<sup>2</sup> ${qVal >= 0 ? '+ ' + qVal : '- ' + Math.abs(qVal)} 의 그래프가 y축과 만나는 점의 y좌표는?`;
+                    ans = (a * p * p + qVal).toString();
+                }
+            } else {
+                if (unitId === 1) {
+                    qType = 'mcq';
+                    const trigList = [
+                        { q: 'sin 60&deg; &times; cos 30&deg; + sin 30&deg; 의 값은?', a: '5/4', opts: ['5/4', '1', '3/4', '√3/2'] },
+                        { q: 'tan 60&deg; &times; sin 60&deg; - cos 60&deg; 의 값은?', a: '1', opts: ['1', '1/2', '3/2', '2'] },
+                        { q: '2 sin 30&deg; + tan 45&deg; 의 값은?', a: '2', opts: ['2', '1', '3/2', '√2'] },
+                        { q: 'cos 45&deg; &times; sin 45&deg; + cos 60&deg; 의 값은?', a: '1', opts: ['1', '1/2', '√2', '3/4'] }
+                    ];
+                    const item = trigList[rand(0, trigList.length - 1)];
+                    q = item.q;
+                    ans = item.a;
+                    options = [...item.opts];
+                } else if (unitId === 2) {
+                    const a = rand(65, 115), b = rand(15, 35);
+                    q = `원에 내접하는 사각형 ABCD에서 &angle;A = ${a}&deg;, &angle;C = (x + ${b})&deg; 일 때, x의 값은?`;
+                    ans = (180 - a - b).toString();
+                } else {
+                    const a = rand(5, 10), b = rand(11, 16), c = rand(17, 22);
+                    const avg = rand(12, 16);
+                    const x = avg * 4 - (a + b + c);
+                    q = `네 변량 ${a}, ${b}, ${c}, x 의 평균이 ${avg}일 때, x의 값은?`;
+                    ans = x.toString();
+                }
+            }
+        }
+
+        if (options.length === 0) {
+            options = [ans];
+        } else if (!options.includes(ans)) {
+            options[0] = ans;
+        }
+        options = [...new Set(options)];
+
+        const numAns = parseFloat(ans);
+        let guard = 0;
+        while (options.length < 4 && guard < 30) {
+            guard++;
+            let candidate;
+            if (!isNaN(numAns) && Number.isInteger(numAns)) {
+                const offset = rand(-5, 6);
+                if (offset === 0) continue;
+                candidate = (numAns + offset).toString();
+            } else if (!isNaN(numAns)) {
+                candidate = (numAns + rand(1, 5) * 0.1).toFixed(2).replace(/\.?0+$/, '');
+            } else {
+                candidate = ['0', '1', '2', '1/3', '√2'][rand(0, 4)];
+            }
+            if (!options.includes(candidate)) {
+                options.push(candidate);
+            }
+        }
+        options = options.sort(() => Math.random() - 0.5);
+
+        if (qType === 'short') {
+            q += " <br><span class='text-sm text-slate-400'>(숫자만 입력)</span>";
+        }
+
+        return { type: qType, q, options, ans };
+    }
+
+    // --- 크리스마스 특별 캠페인 ---
+    function generateChristmasQuestions() {
+        const list = [
+            { type: 'mcq', q: '🎄 크리스마스는 매년 몇 월 며칠인가요?', options: ['12월 24일', '12월 25일', '12월 31일', '1월 1일'], ans: '12월 25일' },
+            { type: 'short', q: '🎅 산타 할아버지가 1집마다 선물을 3개씩 나누어 줍니다. 15집에 나누어 준 선물은 모두 몇 개인가요?', options: [], ans: '45' },
+            { type: 'mcq', q: '🦌 빨간 코를 가진 산타의 썰매를 이끄는 유명한 순록의 이름은?', options: ['루돌프', '도라에몽', '피카츄', '울라프'], ans: '루돌프' },
+            { type: 'short', q: '🌟 크리스마스트리에 전구가 1분에 6번 반짝입니다. 10분 동안 전구는 모두 몇 번 반짝일까요?', options: [], ans: '60' },
+            { type: 'short', q: '🍪 산타를 위해 구운 진저브레드 쿠키 24개를 4개의 접시에 똑같이 나누어 담으면 한 접시에 몇 개씩 담기나요?', options: [], ans: '6' },
+            { type: 'mcq', q: '⛄ 눈사람을 만들 때 주로 눈사람의 코로 사용하는 채소는 무엇인가요?', options: ['당근', '오이', '가지', '감자'], ans: '당근' },
+            { type: 'short', q: '🎁 선물 상자 1개의 가로가 10cm, 세로가 5cm, 높이가 4cm인 직육면체일 때, 부피는 몇 cm&sup3;인가요?', options: [], ans: '200' },
+            { type: 'mcq', q: '🎶 다음 중 대표적인 크리스마스 캐럴 노래 제목은 무엇인가요?', options: ['징글벨', '애국가', '산토끼', '곰 세 마리'], ans: '징글벨' },
+            { type: 'short', q: '🧦 벽난로에 걸린 양말 8개에 사탕이 7개씩 들어있습니다. 사탕은 모두 몇 개인가요?', options: [], ans: '56' },
+            { type: 'short', q: '❄️ 눈송이 하나에는 6개의 꼭짓점이 있습니다. 눈송이 9개의 꼭짓점은 모두 몇 개인가요?', options: [], ans: '54' },
+            { type: 'mcq', q: '🎅 산타 할아버지가 굴뚝을 통해 집 안으로 들어올 때 주로 타고 다니는 것은?', options: ['순록 썰매', '우주선', '잠수함', '자전거'], ans: '순록 썰매' },
+            { type: 'short', q: '🎂 크리스마스 케이크의 3/4 을 가족들이 먹었습니다. 남은 케이크는 전체의 몇 %인가요? (숫자만 입력)', options: [], ans: '25' },
+            { type: 'short', q: '🕯️ 크리스마스 촛불 1자루가 1시간에 3cm씩 짧아집니다. 5시간 후에는 몇 cm 짧아질까요?', options: [], ans: '15' },
+            { type: 'mcq', q: '🎄 크리스마스 트리 꼭대기에 주로 장식하는 모양은 무엇인가요?', options: ['별', '수박', '축구공', '연필'], ans: '별' },
+            { type: 'short', q: '🎉 12월 25일 크리스마스까지 남은 선물이 100개인데, 그중 37%를 포장했습니다. 아직 포장하지 않은 선물은 몇 개인가요?', options: [], ans: '63' }
+        ];
+        return list.map(item => {
+            if (item.type === 'mcq') {
+                return { ...item, options: [...item.options].sort(() => Math.random() - 0.5) };
+            }
+            return { ...item, q: item.q + " <br><span class='text-sm text-slate-400'>(숫자만 입력)</span>" };
+        });
+    }
+
+    function isChristmasCampaignActive() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const deadline = new Date(year, 11, 25, 23, 59, 59);
+        return now <= deadline;
+    }
+
+    function renderChristmasBanner() {
+        const banner = document.getElementById('christmas-banner');
+        if (!banner) return;
+
+        if (!isChristmasCampaignActive()) {
+            banner.innerHTML = '';
+            return;
+        }
+
+        if (christmasClaimed) {
+            banner.innerHTML = `
+                <div class="w-full bg-gradient-to-r from-slate-600 to-slate-700 text-white p-4 rounded-3xl shadow-md border-b-4 border-slate-800 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 text-left">
+                        <span class="text-3xl">🎄</span>
+                        <div>
+                            <div class="font-bold text-lg text-emerald-300">크리스마스 특별 캠페인 참여 완료!</div>
+                            <div class="text-xs text-slate-200">이미 참여하여 루비 보상을 수령했습니다 (1회 한정)</div>
+                        </div>
+                    </div>
+                    <span class="bg-slate-800 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">완료됨 ✔</span>
+                </div>
+            `;
+        } else {
+            banner.innerHTML = `
+                <button onclick="startChristmasCampaign()" class="btn-3d btn-red w-full p-4 sm:p-5 rounded-3xl flex items-center justify-between gap-3 text-left shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <span class="text-4xl">🎄</span>
+                        <div>
+                            <div class="font-bold text-lg sm:text-xl text-red-950">🎅 크리스마스 특별 캠페인 (~12/25)</div>
+                            <div class="text-xs sm:text-sm text-red-900 font-bold">15문제 도전! 10개 이하 ❤️250개 / 만점 ❤️500개 (1회 한정)</div>
+                        </div>
+                    </div>
+                    <span class="bg-white/90 text-red-700 px-3 py-2 rounded-2xl text-sm font-bold shrink-0 shadow-sm">도전하기 ➔</span>
+                </button>
+            `;
+        }
+    }
+
+    function startChristmasCampaign() {
+        if (!isChristmasCampaignActive()) {
+            showModal('캠페인 종료', '크리스마스 특별 캠페인 기간(12월 25일)이 종료되었습니다.', 'error');
+            return;
+        }
+        if (christmasClaimed) {
+            showModal('참여 완료', '크리스마스 특별 캠페인은 1번만 참여할 수 있습니다!', 'error');
+            return;
+        }
+
+        isChristmasMode = true;
+        currentUnitId = 'christmas';
+        currentQuestions = generateChristmasQuestions();
+        currentQIndex = 0;
+        score = 0;
+
+        unitTitleDisplay.textContent = '🎄 크리스마스 특별 퀴즈 (15문제)';
+        homeScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+
+        renderQuestion();
+    }
+
+    // --- State Variables & Account System (복제본 독립 스토리지 키 적용) ---
+    let selectedGrade = null;
+    let selectedSemester = null;
+    let currentUnitId = null;
+    let currentQuestions = [];
+    let currentQIndex = 0;
+    let score = 0;
+    let selectedOption = null;
+    let isChristmasMode = false;
+
+    let points = 0;
+    let diamonds = 0;
+    let rubies = 0;
+    let myCars = [];
+    let usedCoupons = [];
+    let attendanceDate = null;
+    let christmasClaimed = false;
+    let currentThemeBg = '#f0f9ff';
+    let currentThemeDot = '#bae6fd';
+    let currentNickname = '게스트';
+    const QUESTIONS_PER_ROUND = 60;
+
+    let totalSolved = 0;
+    let correctAnswers = 0;
+    let isAdminUser = false;
+    let bgmEnabled = true;
+    let sfxEnabled = true;
+    let savingsActive = false;
+    let savingsInterval = null;
+
+    let currentAccountId = null;
+    const ACCOUNTS_DB_KEY = 'math_playground_v3_beta_accounts_v1';
+    const CURRENT_SESSION_KEY = 'math_playground_v3_beta_current_session_v1';
+    let saveBadgeTimeout = null;
+
+    function getUserStorageKey(accountId) {
+        return `math_playground_v3_beta_user_${accountId || 'guest'}_v1`;
+    }
+
+    function getAccountsDB() {
+        try {
+            const raw = localStorage.getItem(ACCOUNTS_DB_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function saveAccountsDB(dbObj) {
+        try {
+            localStorage.setItem(ACCOUNTS_DB_KEY, JSON.stringify(dbObj));
+        } catch (e) {}
+    }
+
+    function hashPassword(pw) {
+        try {
+            return btoa(encodeURIComponent(pw));
+        } catch (e) {
+            return pw;
+        }
+    }
+
+    function switchAuthTab(tab) {
+        const loginForm = document.getElementById('login-form');
+        const regForm = document.getElementById('register-form');
+        const loginBtn = document.getElementById('tab-login-btn');
+        const regBtn = document.getElementById('tab-register-btn');
+
+        if (tab === 'login') {
+            loginForm.classList.remove('hidden');
+            loginForm.classList.add('flex');
+            regForm.classList.add('hidden');
+            regForm.classList.remove('flex');
+            loginBtn.className = 'w-1/2 py-2.5 rounded-xl font-bold text-lg bg-white text-blue-600 shadow-sm transition-all';
+            regBtn.className = 'w-1/2 py-2.5 rounded-xl font-bold text-lg text-slate-500 transition-all';
+        } else {
+            regForm.classList.remove('hidden');
+            regForm.classList.add('flex');
+            loginForm.classList.add('hidden');
+            loginForm.classList.remove('flex');
+            regBtn.className = 'w-1/2 py-2.5 rounded-xl font-bold text-lg bg-white text-green-600 shadow-sm transition-all';
+            loginBtn.className = 'w-1/2 py-2.5 rounded-xl font-bold text-lg text-slate-500 transition-all';
+        }
+    }
+
+    async function handleRegister(e) {
+        e.preventDefault();
+        const nickname = document.getElementById('reg-nickname').value.trim();
+        const id = document.getElementById('reg-id').value.trim().toLowerCase();
+        const pw = document.getElementById('reg-pw').value;
+        const pwConfirm = document.getElementById('reg-pw-confirm').value;
+
+        if (!nickname || !id || !pw) {
+            showModal('앗!', '모든 항목을 입력해주세요.', 'error');
+            return;
+        }
+        if (id === 'guest') {
+            showModal('앗!', 'guest는 사용할 수 없는 아이디입니다.', 'error');
+            return;
+        }
+        if (pw.length < 4) {
+            showModal('앗!', '비밀번호는 4자 이상 입력해주세요.', 'error');
+            return;
+        }
+        if (pw !== pwConfirm) {
+            showModal('앗!', '비밀번호가 일치하지 않습니다.', 'error');
+            return;
+        }
+
+        const accounts = getAccountsDB();
+        if (accounts[id]) {
+            showModal('앗!', '이미 사용 중인 아이디입니다.<br>다른 아이디를 입력해주세요.', 'error');
+            return;
+        }
+
+        if (window.fetchAccountFromCloud) {
+            const cloudAcc = await window.fetchAccountFromCloud(id);
+            if (cloudAcc) {
+                showModal('앗!', '이미 다른 기기에서 등록된 아이디입니다.', 'error');
+                return;
+            }
+        }
+
+        const newAccInfo = {
+            nickname: nickname,
+            passwordHash: hashPassword(pw),
+            createdAt: Date.now()
+        };
+
+        accounts[id] = newAccInfo;
+        saveAccountsDB(accounts);
+        if (window.saveAccountToCloud) {
+            await window.saveAccountToCloud(id, newAccInfo);
+        }
+
+        resetStateVariables(nickname);
+        points = 100;
+        currentAccountId = id;
+        localStorage.setItem(CURRENT_SESSION_KEY, id);
+        triggerSave();
+
+        updateAuthHeaderUI();
+        updatePointsUI();
+        document.getElementById('auth-screen').classList.add('hidden');
+        renderGradeSelect();
+        showModal('회원가입 완료! 🎉', `환영합니다, <b>${nickname}</b>님!<br>가입 축하 보너스 <b class="text-yellow-600">100 포인트</b>가 지급되었습니다!`, 'success');
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const id = document.getElementById('login-id').value.trim().toLowerCase();
+        const pw = document.getElementById('login-pw').value;
+
+        const accounts = getAccountsDB();
+        let acc = accounts[id];
+
+        if (!acc && window.fetchAccountFromCloud) {
+            const cloudAcc = await window.fetchAccountFromCloud(id);
+            if (cloudAcc) {
+                acc = cloudAcc;
+                accounts[id] = cloudAcc;
+                saveAccountsDB(accounts);
+            }
+        }
+
+        if (!acc) {
+            showModal('로그인 실패', '존재하지 않는 아이디입니다.<br>회원가입을 먼저 진행해주세요!', 'error');
+            return;
+        }
+
+        if (acc.passwordHash !== hashPassword(pw)) {
+            showModal('로그인 실패', '비밀번호가 일치하지 않습니다.', 'error');
+            return;
+        }
+
+        await completeLogin(id, acc.nickname, true);
+    }
+
+    function loginAsGuest() {
+        completeLogin('guest', '게스트', true);
+    }
+
+    async function completeLogin(accountId, nickname, showWelcome = false) {
+        currentAccountId = accountId;
+        localStorage.setItem(CURRENT_SESSION_KEY, accountId);
+        resetStateVariables(nickname);
+
+        let localData = null;
+        try {
+            const raw = localStorage.getItem(getUserStorageKey(accountId));
+            if (raw) localData = JSON.parse(raw);
+        } catch (e) {}
+
+        let cloudData = null;
+        if (accountId !== 'guest' && window.fetchUserDataFromCloud) {
+            cloudData = await window.fetchUserDataFromCloud(accountId);
+        }
+
+        if (cloudData && (!localData || (cloudData.lastSavedAt || 0) >= (localData.lastSavedAt || 0))) {
+            applyLoadedData(cloudData);
+            try {
+                localStorage.setItem(getUserStorageKey(accountId), JSON.stringify(getSavePayload()));
+            } catch (e) {}
+        } else if (localData) {
+            applyLoadedData(localData);
+            if (accountId !== 'guest' && window.saveSharedUserDataToCloud) {
+                window.saveSharedUserDataToCloud(accountId, getSavePayload());
+            }
+        } else {
+            triggerSave();
+        }
+
+        updateAuthHeaderUI();
+        updatePointsUI();
+        document.getElementById('auth-screen').classList.add('hidden');
+        renderGradeSelect();
+
+        if (showWelcome) {
+            showModal('환영합니다! 👋', `<b>${currentNickname}</b>님, 버전 3.0 베타 얼리엑세스에 오신 것을 환영합니다!`, 'success');
+        }
+    }
+
+    function logoutUser() {
+        triggerSave();
+        currentAccountId = null;
+        localStorage.removeItem(CURRENT_SESSION_KEY);
+        resetStateVariables('게스트');
+        updatePointsUI();
+        updateAuthHeaderUI();
+        showAuthScreen();
+    }
+
+    function showAuthScreen() {
+        document.getElementById('auth-screen').classList.remove('hidden');
+        if (homeScreen) homeScreen.classList.add('hidden');
+        if (quizScreen) quizScreen.classList.add('hidden');
+        if (resultScreen) resultScreen.classList.add('hidden');
+        if (adminScreen) adminScreen.classList.add('hidden');
+        const gachaScreen = document.getElementById('gacha-screen');
+        if (gachaScreen) gachaScreen.classList.add('hidden');
+    }
+
+    function updateAuthHeaderUI() {
+        const badge = document.getElementById('user-profile-badge');
+        const nickEl = document.getElementById('header-nickname');
+        const adminBadgeEl = document.getElementById('header-admin-badge');
+        if (!badge || !nickEl) return;
+
+        if (currentAccountId) {
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+            nickEl.textContent = currentNickname;
+            if (adminBadgeEl) {
+                if (isAdminUser) {
+                    adminBadgeEl.classList.remove('hidden');
+                } else {
+                    adminBadgeEl.classList.add('hidden');
+                }
+            }
+        } else {
+            badge.classList.add('hidden');
+            badge.classList.remove('flex');
+            if (adminBadgeEl) adminBadgeEl.classList.add('hidden');
+        }
+    }
+
+    function resetStateVariables(nickname = '게스트') {
+        points = 0;
+        diamonds = 0;
+        rubies = 0;
+        myCars = [];
+        usedCoupons = [];
+        attendanceDate = null;
+        christmasClaimed = false;
+        totalSolved = 0;
+        correctAnswers = 0;
+        isAdminUser = false;
+        currentNickname = nickname;
+        currentThemeBg = '#f0f9ff';
+        currentThemeDot = '#bae6fd';
+        bgmEnabled = true;
+        sfxEnabled = true;
+
+        document.body.style.backgroundColor = currentThemeBg;
+        document.body.style.backgroundImage = `radial-gradient(${currentThemeDot} 2px, transparent 2px)`;
+    }
+
+    // --- Save & Sync Payload ---
+    function getSavePayload() {
+        return {
+            points: points,
+            diamonds: diamonds,
+            rubies: rubies,
+            usedCoupons: usedCoupons,
+            myCars: myCars,
+            attendanceDate: attendanceDate,
+            christmasClaimed: christmasClaimed,
+            themeBg: currentThemeBg,
+            themeDot: currentThemeDot,
+            nickname: currentNickname,
+            totalSolved: totalSolved,
+            correctAnswers: correctAnswers,
+            isAdminUser: isAdminUser,
+            bgmEnabled: bgmEnabled,
+            sfxEnabled: sfxEnabled,
+            lastSavedAt: Date.now()
+        };
+    }
+
+    function applyLoadedData(data) {
+        if (!data || typeof data !== 'object') return;
+        if (data.points !== undefined) points = Number(data.points) || 0;
+        if (data.diamonds !== undefined) diamonds = Number(data.diamonds) || 0;
+        if (data.rubies !== undefined) rubies = Number(data.rubies) || 0;
+        if (Array.isArray(data.usedCoupons)) usedCoupons = data.usedCoupons;
+        if (Array.isArray(data.myCars)) myCars = data.myCars;
+        if (data.attendanceDate !== undefined) attendanceDate = data.attendanceDate;
+        if (data.christmasClaimed !== undefined) christmasClaimed = Boolean(data.christmasClaimed);
+        if (data.nickname !== undefined) currentNickname = data.nickname;
+
+        if (data.totalSolved !== undefined) totalSolved = Number(data.totalSolved) || 0;
+        if (data.correctAnswers !== undefined) correctAnswers = Number(data.correctAnswers) || 0;
+        if (data.isAdminUser !== undefined) isAdminUser = Boolean(data.isAdminUser);
+        if (data.bgmEnabled !== undefined) bgmEnabled = Boolean(data.bgmEnabled);
+        if (data.sfxEnabled !== undefined) sfxEnabled = Boolean(data.sfxEnabled);
+
+        if (data.themeBg !== undefined && data.themeDot !== undefined) {
+            currentThemeBg = data.themeBg;
+            currentThemeDot = data.themeDot;
+            document.body.style.backgroundColor = currentThemeBg;
+            document.body.style.backgroundImage = `radial-gradient(${currentThemeDot} 2px, transparent 2px)`;
+        }
+
+        updatePointsUI();
+        updateAuthHeaderUI();
+        renderChristmasBanner();
+        if (document.getElementById('gacha-screen') && !document.getElementById('gacha-screen').classList.contains('hidden')) {
+            renderGarage();
+        }
+    }
+
+    function flashAutoSaveBadge() {
+        const badge = document.getElementById('autosave-badge');
+        const text = document.getElementById('autosave-text');
+        const icon = document.getElementById('autosave-icon');
+        if (!badge || !text || !icon) return;
+
+        badge.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+        badge.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600', 'scale-105');
+        icon.textContent = '✨';
+        text.textContent = '저장 완료!';
+
+        if (saveBadgeTimeout) clearTimeout(saveBadgeTimeout);
+        saveBadgeTimeout = setTimeout(() => {
+            badge.classList.remove('bg-emerald-500', 'text-white', 'border-emerald-600', 'scale-105');
+            badge.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+            icon.textContent = '💾';
+            text.textContent = '자동 저장됨';
+        }, 1200);
+    }
+
+    window.updateStateFromCloud = function(cloudData) {
+        if (!cloudData || !currentAccountId) return;
+        let localData = null;
+        try {
+            const raw = localStorage.getItem(getUserStorageKey(currentAccountId));
+            if (raw) localData = JSON.parse(raw);
+        } catch (e) {}
+
+        if (localData && (localData.lastSavedAt || 0) > (cloudData.lastSavedAt || 0)) {
+            applyLoadedData(localData);
+            if (window.saveDataToCloud) window.saveDataToCloud(getSavePayload());
+        } else {
+            applyLoadedData(cloudData);
+            try {
+                localStorage.setItem(getUserStorageKey(currentAccountId), JSON.stringify(getSavePayload()));
+            } catch (e) {}
+        }
+    };
+
+    function triggerSave() {
+        const payload = getSavePayload();
+        try {
+            localStorage.setItem(getUserStorageKey(currentAccountId), JSON.stringify(payload));
+            flashAutoSaveBadge();
+        } catch (e) {}
+        if (window.saveDataToCloud) {
+            window.saveDataToCloud(payload);
+        }
+        if (currentAccountId && currentAccountId !== 'guest' && window.saveSharedUserDataToCloud) {
+            window.saveSharedUserDataToCloud(currentAccountId, payload);
+        }
+    }
+
+    // --- DOM Elements ---
+    const homeScreen = document.getElementById('home-screen');
+    const homeNavBar = document.getElementById('home-nav-bar');
+    const homeBackBtn = document.getElementById('home-back-btn');
+    const homeTitle = document.getElementById('home-title');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const adminScreen = document.getElementById('admin-screen');
+    const unitGrid = document.getElementById('unit-grid');
+    const questionText = document.getElementById('question-text');
+    const inputArea = document.getElementById('input-area');
+    const unitTitleDisplay = document.getElementById('unit-title-display');
+    const progressDisplay = document.getElementById('progress-display');
+    const adminPwdModal = document.getElementById('admin-pwd-modal');
+    const adminPwdInput = document.getElementById('admin-pwd-input');
+
+    const modal = document.getElementById('custom-modal');
+    const modalBox = document.getElementById('modal-content-box');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalBtn = document.getElementById('modal-btn');
+    let modalCallback = null;
+
+    // --- 데이터 초기화(리셋) 기능 ---
+    function promptResetData() {
+        closeSettingsModal();
+        setTimeout(() => {
+            document.getElementById('confirm-title').textContent = '⚠️ 데이터 초기화';
+            document.getElementById('confirm-desc').innerHTML = '현재 계정의 <b>포인트, 다이아, 루비, 자동차, 학습 통계</b>가 모두 삭제되며 되돌릴 수 없습니다.<br>정말 초기화하시겠습니까?';
+            document.getElementById('confirm-btn').onclick = () => {
+                closeConfirmModal();
+                executeResetData();
+            };
+            fadeInModal('confirm-modal', 'confirm-box');
+        }, 300);
+    }
+
+    function executeResetData() {
+        const keepNick = currentNickname;
+        resetStateVariables(keepNick);
+        try {
+            localStorage.removeItem(getUserStorageKey(currentAccountId));
+        } catch (e) {}
+        triggerSave();
+        updatePointsUI();
+        updateAuthHeaderUI();
+        goHome();
+        showModal('초기화 완료', '모든 게임 데이터가 깨끗하게 초기화되었습니다.', 'success');
+    }
+
+    // --- 시작 크레딧 오버레이 제어 ---
+    let introDismissed = false;
+    let introAutoTimer = null;
+
+    function showIntroCreditAgain() {
+        const overlay = document.getElementById('intro-credit-overlay');
+        const bar = document.getElementById('intro-progress-bar');
+        if (!overlay) return;
+
+        introDismissed = false;
+        if (introAutoTimer) clearTimeout(introAutoTimer);
+
+        if (bar) {
+            bar.style.transition = 'none';
+            bar.style.width = '0%';
+        }
+
+        overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+
+        setTimeout(() => {
+            if (bar) {
+                bar.style.transition = 'width 6800ms ease-out';
+                bar.style.width = '100%';
+            }
+        }, 50);
+
+        introAutoTimer = setTimeout(dismissIntroCredit, 7000);
+    }
+
+    function dismissIntroCredit() {
+        if (introDismissed) return;
+        introDismissed = true;
+        if (introAutoTimer) clearTimeout(introAutoTimer);
+        const overlay = document.getElementById('intro-credit-overlay');
+        if (!overlay) return;
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 700);
+    }
+
+    // --- Initialization ---
+    function init() {
+        const bar = document.getElementById('intro-progress-bar');
+        if (bar) {
+            setTimeout(() => { bar.style.width = '100%'; }, 50);
+        }
+        introAutoTimer = setTimeout(dismissIntroCredit, 7000);
+
+        try {
+            const hash = window.location.hash || '';
+            if (hash.startsWith('#sync=')) {
+                const rawCode = decodeURIComponent(hash.slice(6));
+                const bundle = JSON.parse(decodeURIComponent(atob(rawCode)));
+                if (bundle && bundle.accountId && bundle.userData) {
+                    const accounts = getAccountsDB();
+                    if (bundle.accountInfo) {
+                        accounts[bundle.accountId] = bundle.accountInfo;
+                        saveAccountsDB(accounts);
+                    }
+                    localStorage.setItem(getUserStorageKey(bundle.accountId), JSON.stringify(bundle.userData));
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                    completeLogin(bundle.accountId, (bundle.accountInfo && bundle.accountInfo.nickname) || bundle.userData.nickname || bundle.accountId, false);
+                    showModal('계정 복원 성공! 🎉', `<b>${currentNickname}</b>님의 계정과 모든 데이터가 자동으로 불러와졌습니다!`, 'success');
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        try {
+            const savedSession = localStorage.getItem(CURRENT_SESSION_KEY);
+            if (savedSession) {
+                const accounts = getAccountsDB();
+                if (savedSession === 'guest') {
+                    completeLogin('guest', '게스트', false);
+                    return;
+                } else if (accounts[savedSession]) {
+                    completeLogin(savedSession, accounts[savedSession].nickname, false);
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        updatePointsUI();
+        updateAuthHeaderUI();
+        showAuthScreen();
+    }
+
+    // --- 구글 사이트용 카톡 계정 코드 내보내기/불러오기 ---
+    function copyTextSafely(text) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        temp.setSelectionRange(0, 999999);
+        let ok = false;
+        try {
+            ok = document.execCommand('copy');
+        } catch (e) {}
+        document.body.removeChild(temp);
+        return ok;
+    }
+
+    function openSyncExportModal() {
+        closeSettingsModal();
+        if (!currentAccountId || currentAccountId === 'guest') {
+            setTimeout(() => {
+                showModal('알림', '게스트 계정은 내보낼 수 없습니다.<br>먼저 회원가입 후 로그인해주세요!', 'error');
+            }, 300);
+            return;
+        }
+
+        setTimeout(() => {
+            const accounts = getAccountsDB();
+            const myAccount = accounts[currentAccountId] || {
+                nickname: currentNickname,
+                passwordHash: '',
+                createdAt: Date.now()
+            };
+
+            const transferBundle = {
+                v: 1,
+                accountId: currentAccountId,
+                accountInfo: myAccount,
+                userData: getSavePayload()
+            };
+
+            const encoded = btoa(encodeURIComponent(JSON.stringify(transferBundle)));
+
+            const textarea = document.getElementById('sync-code-textarea');
+            const actionBtn = document.getElementById('sync-action-btn');
+
+            document.getElementById('sync-modal-title').textContent = '📲 카톡으로 계정 코드 보내기';
+            document.getElementById('sync-modal-desc').innerHTML = '1. 아래 파란 박스의 코드를 복사해 <b>카톡(나와의 채팅)</b>에 붙여넣으세요.<br>2. 핸드폰으로 <b>구글 사이트</b>에 접속해 로그인 화면 하단 <b>[카톡으로 받은 계정 코드 불러오기]</b>에 붙여넣으면 끝!';
+            textarea.value = encoded;
+            textarea.readOnly = true;
+
+            actionBtn.textContent = '계정 코드 복사하기 📋';
+            actionBtn.onclick = () => {
+                textarea.focus();
+                textarea.select();
+                textarea.setSelectionRange(0, 999999);
+                if (copyTextSafely(encoded)) {
+                    closeSyncTransferModal();
+                    setTimeout(() => showModal('코드 복사 완료! 📋', '이제 PC 카카오톡(나와의 채팅)에 <b>Ctrl+V</b>로 붙여넣어 핸드폰으로 보내세요!', 'success'), 300);
+                } else {
+                    showModal('안내', '박스에 파랗게 선택된 글자 위에서 <b>Ctrl + C</b>를 눌러 복사해주세요!', 'error');
+                }
+            };
+
+            fadeInModal('sync-transfer-modal', 'sync-transfer-box');
+            setTimeout(() => {
+                textarea.focus();
+                textarea.select();
+                textarea.setSelectionRange(0, 999999);
+            }, 350);
+        }, 300);
+    }
+
+    function openSyncImportModal() {
+        const textarea = document.getElementById('sync-code-textarea');
+        const actionBtn = document.getElementById('sync-action-btn');
+
+        document.getElementById('sync-modal-title').textContent = '📥 카톡 계정 코드 불러오기';
+        document.getElementById('sync-modal-desc').innerHTML = '카톡에서 복사한 <b>계정 코드</b>를 아래 박스에 길게 눌러 붙여넣으세요!';
+        textarea.value = '';
+        textarea.readOnly = false;
+
+        actionBtn.textContent = '계정 복원하고 로그인 🚀';
+        actionBtn.onclick = async () => {
+            let rawCode = textarea.value.trim();
+            if (!rawCode) {
+                showModal('앗!', '계정 코드를 먼저 붙여넣어 주세요.', 'error');
+                return;
+            }
+            if (rawCode.includes('#sync=')) {
+                rawCode = decodeURIComponent(rawCode.split('#sync=')[1]);
+            }
+            try {
+                const decodedStr = decodeURIComponent(atob(rawCode));
+                const bundle = JSON.parse(decodedStr);
+                if (!bundle || !bundle.accountId || !bundle.userData) {
+                    throw new Error('Invalid bundle');
+                }
+
+                const accounts = getAccountsDB();
+                if (bundle.accountInfo) {
+                    accounts[bundle.accountId] = bundle.accountInfo;
+                    saveAccountsDB(accounts);
+                }
+                localStorage.setItem(getUserStorageKey(bundle.accountId), JSON.stringify(bundle.userData));
+
+                closeSyncTransferModal();
+                await completeLogin(bundle.accountId, (bundle.accountInfo && bundle.accountInfo.nickname) || bundle.userData.nickname || bundle.accountId, false);
+                showModal('계정 불러오기 성공! 🎉', `<b>${currentNickname}</b>님의 계정과 포인트·자동차가 모두 복원되었습니다!`, 'success');
+            } catch (e) {
+                showModal('오류', '올바르지 않거나 손상된 코드입니다.<br>카톡에서 코드 전체를 빠짐없이 복사했는지 확인해주세요.', 'error');
+            }
+        };
+
+        fadeInModal('sync-transfer-modal', 'sync-transfer-box');
+    }
+
+    function closeSyncTransferModal() {
+        fadeOutModal('sync-transfer-modal', 'sync-transfer-box');
+    }
+
+    // --- 사용자 지정 Firebase 실시간 서버 설정 ---
+    function openCustomFirebaseModal() {
+        const textarea = document.getElementById('custom-fb-textarea');
+        try {
+            textarea.value = localStorage.getItem('math_playground_v3_beta_custom_fb_config_v1') || '';
+        } catch (e) {
+            textarea.value = '';
+        }
+        fadeInModal('custom-fb-modal', 'custom-fb-box');
+    }
+
+    function closeCustomFirebaseModal() {
+        fadeOutModal('custom-fb-modal', 'custom-fb-box');
+    }
+
+    function saveCustomFirebaseConfig() {
+        const raw = document.getElementById('custom-fb-textarea').value.trim();
+        if (!raw) {
+            showModal('앗!', 'Firebase 설정 JSON을 입력해주세요.', 'error');
+            return;
+        }
+        try {
+            let normalized = raw;
+            if (!normalized.startsWith('{')) {
+                const match = normalized.match(/\{[\s\S]*\}/);
+                if (match) normalized = match[0];
+            }
+            normalized = normalized.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":').replace(/'/g, '"');
+            const parsed = JSON.parse(normalized);
+            if (!parsed.apiKey || !parsed.projectId) {
+                throw new Error('Missing apiKey or projectId');
+            }
+            localStorage.setItem('math_playground_v3_beta_custom_fb_config_v1', JSON.stringify(parsed));
+            location.reload();
+        } catch (e) {
+            showModal('형식 오류', '올바른 Firebase 설정 코드가 아닙니다.<br>apiKey와 projectId가 포함된 설정 객체를 붙여넣어 주세요.', 'error');
+        }
+    }
+
+    function resetCustomFirebaseConfig() {
+        localStorage.removeItem('math_playground_v3_beta_custom_fb_config_v1');
+        location.reload();
+    }
+
+    // --- Grade / Semester / Unit Selection Navigation ---
+    function renderGradeSelect() {
+        selectedGrade = null;
+        selectedSemester = null;
+        isChristmasMode = false;
+
+        homeScreen.classList.remove('hidden');
+        homeScreen.classList.add('flex');
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        adminScreen.classList.add('hidden');
+        const gachaScreen = document.getElementById('gacha-screen');
+        if (gachaScreen) gachaScreen.classList.add('hidden');
+
+        renderChristmasBanner();
+
+        homeNavBar.classList.add('hidden');
+        homeTitle.textContent = '어떤 학년을 공부할까요? 🤔';
+
+        unitGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl';
+        unitGrid.innerHTML = '';
+
+        gradesInfo.forEach(g => {
+            const card = document.createElement('button');
+            card.className = `btn-3d ${g.color} p-8 rounded-3xl flex flex-col items-center justify-center gap-3 text-center cursor-pointer min-h-[170px]`;
+            card.onclick = () => renderSemesterSelect(g.id);
+            card.innerHTML = `
+                <span class="text-5xl">${g.icon}</span>
+                <span class="text-3xl font-bold">${g.name}</span>
+                <span class="text-base opacity-80">${g.fullName}</span>
+            `;
+            unitGrid.appendChild(card);
+        });
+    }
+
+    function renderSemesterSelect(gradeId) {
+        selectedGrade = gradeId;
+        selectedSemester = null;
+        const gInfo = gradesInfo.find(g => g.id === gradeId);
+
+        homeNavBar.classList.remove('hidden');
+        homeNavBar.classList.add('flex');
+        homeBackBtn.textContent = '◀ 학년 다시 고르기';
+        homeBackBtn.onclick = () => renderGradeSelect();
+        homeTitle.textContent = `${gInfo.fullName} - 몇 학기를 공부할까요? 📚`;
+
+        unitGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl';
+        unitGrid.innerHTML = '';
+
+        const semesters = [
+            { sem: 1, label: '1학기', icon: '🌸', color: 'btn-pink', count: curriculum[gradeId][1].length },
+            { sem: 2, label: '2학기', icon: '🍂', color: 'btn-blue', count: curriculum[gradeId][2].length }
+        ];
+
+        semesters.forEach(s => {
+            const card = document.createElement('button');
+            card.className = `btn-3d ${s.color} p-8 rounded-3xl flex flex-col items-center justify-center gap-3 text-center cursor-pointer min-h-[180px]`;
+            card.onclick = () => renderUnitSelect(gradeId, s.sem);
+            card.innerHTML = `
+                <span class="text-5xl">${s.icon}</span>
+                <span class="text-3xl font-bold">${gInfo.name} ${s.label}</span>
+                <span class="text-base opacity-80">총 ${s.count}개 단원 (2022 개정)</span>
+            `;
+            unitGrid.appendChild(card);
+        });
+    }
+
+    function renderUnitSelect(gradeId, semester) {
+        selectedGrade = gradeId;
+        selectedSemester = semester;
+        const gInfo = gradesInfo.find(g => g.id === gradeId);
+        const units = curriculum[gradeId][semester];
+
+        homeNavBar.classList.remove('hidden');
+        homeBackBtn.textContent = `◀ ${gInfo.name} 학기 다시 고르기`;
+        homeBackBtn.onclick = () => renderSemesterSelect(gradeId);
+        homeTitle.textContent = `${gInfo.name} ${semester}학기 - 어떤 단원을 공부할까요? 🤔`;
+
+        unitGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full';
+        unitGrid.innerHTML = '';
+
+        units.forEach(unit => {
+            const card = document.createElement('button');
+            card.className = `btn-3d ${unit.color} p-6 rounded-3xl flex flex-col items-center justify-center gap-4 text-center cursor-pointer min-h-[160px]`;
+            card.onclick = () => startQuiz(unit.id);
+            card.innerHTML = `
+                <span class="text-5xl">${unit.icon}</span>
+                <span class="text-xl sm:text-2xl font-bold break-keep">${unit.title}</span>
+            `;
+            unitGrid.appendChild(card);
+        });
+    }
+
+    function backToUnits() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        homeScreen.classList.remove('hidden');
+        if (isChristmasMode || !selectedGrade || !selectedSemester) {
+            renderGradeSelect();
+        } else {
+            renderUnitSelect(selectedGrade, selectedSemester);
+        }
+    }
+
+    // --- Quiz Flow ---
+    function startQuiz(unitId) {
+        isChristmasMode = false;
+        currentUnitId = unitId;
+
+        currentQuestions = [];
+        for (let i = 0; i < QUESTIONS_PER_ROUND; i++) {
+            currentQuestions.push(generateQuestion(selectedGrade, selectedSemester, unitId));
+        }
+
+        currentQIndex = 0;
+        score = 0;
+
+        const gInfo = gradesInfo.find(g => g.id === selectedGrade);
+        const unitInfo = curriculum[selectedGrade][selectedSemester].find(u => u.id === unitId);
+        unitTitleDisplay.textContent = `[${gInfo.name}-${selectedSemester}] ${unitInfo.title}`;
+
+        homeScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        selectedOption = null;
+        const q = currentQuestions[currentQIndex];
+
+        progressDisplay.textContent = `${currentQIndex + 1} / ${currentQuestions.length}`;
+        questionText.innerHTML = q.q;
+        inputArea.innerHTML = '';
+
+        if (q.type === 'mcq') {
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-3d btn-white text-xl py-3 px-6 rounded-2xl w-full text-center mb-2';
+                btn.textContent = opt;
+                btn.onclick = (e) => selectOption(opt, e.currentTarget);
+                inputArea.appendChild(btn);
+            });
+        } else if (q.type === 'short') {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'cute-input';
+            input.placeholder = '정답 입력';
+            input.id = 'short-answer-input';
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') checkAnswer();
+            });
+            inputArea.appendChild(input);
+            setTimeout(() => input.focus(), 100);
+        }
+    }
+
+    function selectOption(opt, btnElement) {
+        selectedOption = opt;
+        Array.from(inputArea.children).forEach(child => {
+            child.classList.remove('mcq-selected');
+            child.classList.add('btn-white');
+        });
+        btnElement.classList.remove('btn-white');
+        btnElement.classList.add('mcq-selected');
+    }
+
+    function checkAnswer() {
+        const q = currentQuestions[currentQIndex];
+        let isCorrect = false;
+        let userAnswer = '';
+
+        if (q.type === 'mcq') {
+            if (!selectedOption) {
+                showModal('앗!', '보기를 먼저 선택해주세요.', 'error');
+                return;
+            }
+            userAnswer = selectedOption;
+            isCorrect = (userAnswer === q.ans);
+        } else {
+            const inputEl = document.getElementById('short-answer-input');
+            userAnswer = inputEl.value.trim().replace(/\s+/g, '');
+            if (!userAnswer) {
+                showModal('앗!', '정답을 입력해주세요.', 'error');
+                return;
+            }
+            const correctAns = q.ans.replace(/\s+/g, '');
+            isCorrect = (userAnswer === correctAns);
+        }
+
+        totalSolved++;
+        if (isCorrect) {
+            score++;
+            points += 10;
+            correctAnswers++;
+            triggerSave();
+            updatePointsUI();
+            if (isChristmasMode) {
+                showModal('정답입니다! 🎄', '메리 크리스마스! 🌟 <br><span class="text-yellow-600 font-bold">+10 포인트 획득!</span>', 'success', nextQuestion, '다음 문제 ➔');
+            } else {
+                showModal('정답입니다!', '참 잘했어요! 🌟 <br><span class="text-yellow-600 font-bold">+10 포인트 획득!</span>', 'success', () => checkSurpriseDeal(nextQuestion), '다음 문제 ➔');
+            }
+        } else {
+            triggerSave();
+            showModal('아쉬워요!', `정답은 '${q.ans}' 입니다. 조금만 더 힘내요! 💪`, 'error', nextQuestion, '다음 문제 ➔');
+        }
+    }
+
+    function nextQuestion() {
+        currentQIndex++;
+        if (currentQIndex < currentQuestions.length) {
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+
+        const scoreText = document.getElementById('score-text');
+        const resultEmoji = document.getElementById('result-emoji');
+
+        if (isChristmasMode) {
+            christmasClaimed = true;
+            let earnedRubies = 0;
+            let rewardDesc = '';
+
+            if (score === currentQuestions.length) {
+                earnedRubies = 500;
+                resultEmoji.textContent = '🎅';
+                rewardDesc = `<span class="text-red-600 font-bold mt-3 inline-block">🎉 15문제 올클리어 만점 축하!<br>특별 보상: ❤️ 루비 500개 지급 완료!</span>`;
+            } else if (score <= 10) {
+                earnedRubies = 250;
+                resultEmoji.textContent = '🎄';
+                rewardDesc = `<span class="text-pink-600 font-bold mt-3 inline-block">🎁 크리스마스 참여 보상!<br>❤️ 루비 250개 지급 완료!</span>`;
+            } else {
+                earnedRubies = 250;
+                resultEmoji.textContent = '⛄';
+                rewardDesc = `<span class="text-pink-600 font-bold mt-3 inline-block">🎁 아깝게 만점은 놓쳤지만 참가상 지급!<br>❤️ 루비 250개 지급 완료!</span>`;
+            }
+
+            rubies += earnedRubies;
+            triggerSave();
+            updatePointsUI();
+            scoreText.innerHTML = `크리스마스 퀴즈 15문제 중 <b>${score}문제</b>를 맞췄어요!<br>${rewardDesc}`;
+            return;
+        }
+
+        scoreText.textContent = `총 ${currentQuestions.length}문제 중 ${score}문제를 맞췄어요!`;
+
+        if (score === currentQuestions.length) {
+            resultEmoji.textContent = '🏆';
+            scoreText.innerHTML += '<br><span class="text-blue-500 font-bold mt-2 inline-block">완벽해요! 수학 천재!</span>';
+        } else if (score >= currentQuestions.length / 2) {
+            resultEmoji.textContent = '👏';
+            scoreText.innerHTML += '<br><span class="text-green-500 font-bold mt-2 inline-block">정말 잘했어요!</span>';
+        } else {
+            resultEmoji.textContent = '💪';
+            scoreText.innerHTML += '<br><span class="text-orange-500 font-bold mt-2 inline-block">다음엔 더 잘할 수 있어요!</span>';
+        }
+    }
+
+    function goHome() {
+        renderGradeSelect();
+
+        const modalsToHide = [
+            'settings-modal',
+            'point-menu-modal',
+            'point-settings-modal',
+            'my-point-modal',
+            'my-point-settings-modal',
+            'admin-pwd-modal',
+            'diamond-shop-modal',
+            'ruby-shop-modal',
+            'ruby-roulette-modal',
+            'coupon-modal',
+            'surprise-deal-modal'
+        ];
+
+        modalsToHide.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+    }
+
+    // --- Gacha & Garage System ---
+    const rarities = [
+        { name: '일반', chance: 65, color: 'bg-slate-100 border-slate-200' },
+        { name: '레어', chance: 30, color: 'bg-blue-100 border-blue-300' },
+        { name: '전설', chance: 4.5,  color: 'bg-yellow-200 border-yellow-400 text-yellow-900 shadow-yellow-400/50 shadow-lg' },
+        { name: '신화', chance: 0.4, color: 'bg-purple-200 border-purple-400 text-purple-900 shadow-purple-500/50 shadow-lg' },
+        { name: '초월', chance: 0.08, color: 'bg-slate-800 border-yellow-500 text-yellow-300 shadow-yellow-500/80 shadow-xl' },
+        { name: '불멸', chance: 0.02, color: 'bg-red-950 border-red-500 text-red-400 shadow-red-500/100 shadow-2xl' },
+        { name: '개발자', chance: 0, color: 'bg-slate-900 border-green-500 text-green-400 shadow-green-500/100 shadow-2xl font-mono' },
+        { name: '뽑기불가', chance: 0, color: 'bg-black border-slate-700 text-white shadow-white/50 shadow-2xl tracking-widest' },
+        { name: '히든', chance: 0, color: 'bg-gradient-to-r from-indigo-950 via-purple-950 to-pink-950 border-amber-400 text-amber-300 shadow-amber-400/80 shadow-2xl tracking-widest' }
+    ];
+
+    const carPool = {
+        '일반': [
+            { emoji: '🚗', name: '현대 아반떼' },
+            { emoji: '🚕', name: '기아 K5' },
+            { emoji: '🚗', name: '현대 쏘나타' },
+            { emoji: '🚙', name: '르노 아르카나' },
+            { emoji: '🚗', name: 'KG 토레스' }
+        ],
+        '레어': [
+            { emoji: '🚙', name: '현대 그랜저' },
+            { emoji: '🚗', name: '제네시스 G70' },
+            { emoji: '🏎️', name: 'BMW 3시리즈' },
+            { emoji: '🚗', name: '벤츠 C클래스' },
+            { emoji: '🚙', name: '기아 쏘렌토' }
+        ],
+        '전설': [
+            { emoji: '🏎️', name: '제네시스 G90' },
+            { emoji: '🚗', name: '벤츠 S클래스' },
+            { emoji: '🚙', name: 'BMW X7' },
+            { emoji: '🚗', name: '포르쉐 파나메라' },
+            { emoji: '🏎️', name: '아우디 A8' }
+        ],
+        '신화': [
+            { emoji: '🏎️', name: '포르쉐 911 GT3' },
+            { emoji: '🚗', name: '람보르기니 아벤타도르' },
+            { emoji: '🚙', name: '페라리 SF90' },
+            { emoji: '🚗', name: '맥라렌 720S' },
+            { emoji: '🏎️', name: '롤스로이스 팬텀' }
+        ],
+        '초월': [
+            { emoji: '🏎️', name: '부가티 시론' },
+            { emoji: '🚀', name: '코닉세그 제스코' },
+            { emoji: '🛸', name: '파가니 와이라' },
+            { emoji: '🏎️', name: '리막 네베라' },
+            { emoji: '💎', name: '애스턴마틴 발키리' }
+        ],
+        '불멸': [
+            { emoji: '🔥', name: '부가티 볼리드' },
+            { emoji: '⚡', name: 'SSC 투아타라' },
+            { emoji: '🌪️', name: '헤네시 베놈 F5' },
+            { emoji: '😈', name: '람보르기니 베네노' },
+            { emoji: '🦇', name: '파가니 존다 R' }
+        ],
+        '개발자': [
+            { emoji: '💠', name: '현대 N Vision 74' },
+            { emoji: '✨', name: '제네시스 X 컨버터블' },
+            { emoji: '🌌', name: '르노 트레조' },
+            { emoji: '🧊', name: 'BMW 비전 노이어 클라쎄' },
+            { emoji: '⚡', name: '포르쉐 미션 R' }
+        ],
+        '뽑기불가': [
+            { emoji: '🧬', name: '벤츠 비전 AVTR' },
+            { emoji: '🔭', name: '아우디 스카이스피어' },
+            { emoji: '🚀', name: '포르쉐 미션 X' },
+            { emoji: '⚡', name: '람보르기니 테르조 밀레니오' },
+            { emoji: '🏎️', name: '부가티 비전 그란투리스모' }
+        ],
+        '히든': [
+            { emoji: '🏎️', name: '레드불 RB19 (F1)' },
+            { emoji: '🏎️', name: '메르세데스 W11 (F1)' },
+            { emoji: '🏎️', name: '페라리 SF-24 (F1)' },
+            { emoji: '🏎️', name: '맥라렌 MCL38 (F1)' },
+            { emoji: '🏎️', name: '애스턴마틴 AMR23 (F1)' }
+        ]
+    };
+
+    function updatePointsUI() {
+        const pDisplay = document.getElementById('point-count');
+        if (pDisplay) pDisplay.textContent = points;
+        const dDisplay = document.getElementById('diamond-count');
+        if (dDisplay) dDisplay.textContent = diamonds;
+        const rDisplay = document.getElementById('ruby-count');
+        if (rDisplay) rDisplay.textContent = rubies;
+        const rrDisplay = document.getElementById('roulette-ruby-count');
+        if (rrDisplay) rrDisplay.textContent = rubies;
+    }
+
+    function goGacha() {
+        homeScreen.classList.add('hidden');
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        adminScreen.classList.add('hidden');
+        document.getElementById('gacha-screen').classList.remove('hidden');
+        renderGarage();
+    }
+
+    function drawGacha(times = 1) {
+        const cost = 50 * times;
+        if (points < cost) {
+            showModal('앗!', '포인트가 부족해요.<br>문제를 풀고 포인트를 모아오세요!', 'error');
+            return;
+        }
+
+        points -= cost;
+        triggerSave();
+        updatePointsUI();
+
+        const machine = document.getElementById('gacha-machine');
+        machine.classList.add('animate-shake');
+
+        setTimeout(() => {
+            machine.classList.remove('animate-shake');
+
+            let resultHTML = '';
+
+            for (let t = 0; t < times; t++) {
+                let r = Math.random() * 100;
+                let sum = 0;
+                let selectedRarity = rarities[0];
+                let rIdx = 0;
+
+                for (let i = 0; i < rarities.length; i++) {
+                    sum += rarities[i].chance;
+                    if (r <= sum) {
+                        selectedRarity = rarities[i];
+                        rIdx = i;
+                        break;
+                    }
+                }
+
+                const models = carPool[selectedRarity.name];
+                const selectedModel = models[Math.floor(Math.random() * models.length)];
+
+                const myNewCar = {
+                    emoji: selectedModel.emoji,
+                    name: selectedModel.name,
+                    rarity: selectedRarity.name,
+                    color: selectedRarity.color
+                };
+
+                myCars.push(myNewCar);
+
+                const isLegendaryOrHigher = rIdx >= 2;
+                let extraText = '';
+                if (selectedRarity.name === '전설') extraText = '<br><span class="text-[10px] text-red-500 font-bold">초대박! 전설!</span>';
+                else if (selectedRarity.name === '신화') extraText = '<br><span class="text-[10px] text-purple-500 font-bold">기적! 신화!</span>';
+                else if (selectedRarity.name === '초월') extraText = '<br><span class="text-[10px] text-yellow-500 font-bold">세계최고! 초월!</span>';
+                else if (selectedRarity.name === '불멸') extraText = '<br><span class="text-[10px] text-red-600 font-bold animate-pulse">절대존엄! 불멸!</span>';
+
+                resultHTML += `
+                    <div class="flex flex-col items-center bg-slate-50 p-3 rounded-xl border border-slate-200 ${times === 1 ? 'w-full' : 'flex-1 min-w-[30%]'}">
+                        <span class="${times === 1 ? 'text-6xl' : 'text-4xl'} mb-1 ${isLegendaryOrHigher ? 'animate-bounce' : ''}">${myNewCar.emoji}</span>
+                        <span class="font-bold text-slate-700 ${times === 1 ? 'text-2xl' : 'text-[11px]'} break-keep text-center leading-tight min-h-[2.5rem] flex items-center justify-center">${myNewCar.name}</span>
+                        <span class="text-[10px] font-bold bg-white px-2 py-0.5 rounded-full inline-block mt-1 shadow-sm ${isLegendaryOrHigher ? 'text-yellow-600 border border-yellow-400' : 'text-slate-500'}">
+                            ${myNewCar.rarity}
+                        </span>
+                        ${extraText}
+                    </div>
+                `;
+            }
+
+            triggerSave();
+            renderGarage();
+
+            const finalHTML = `
+                <div class="text-lg mb-2 font-bold text-slate-600">${times}대 뽑기 완료!</div>
+                <div class="flex justify-center gap-2 w-full flex-wrap">${resultHTML}</div>
+            `;
+
+            showModal('뽑기 성공! 🎉', finalHTML, 'success');
+        }, 600);
+    }
+
+    function renderGarage() {
+        const devCount = myCars.filter(c => c.rarity === '개발자').length;
+        const hiddenMergeBtn = document.getElementById('hidden-merge-btn');
+        if (hiddenMergeBtn) {
+            if (devCount >= 30) {
+                hiddenMergeBtn.classList.remove('hidden');
+                hiddenMergeBtn.classList.add('flex');
+            } else {
+                hiddenMergeBtn.classList.add('hidden');
+                hiddenMergeBtn.classList.remove('flex');
+            }
+        }
+
+        const grid = document.getElementById('garage-grid');
+        if (myCars.length === 0) {
+            grid.innerHTML = '<div class="text-center text-slate-400 py-10 col-span-full">아직 뽑은 자동차가 없어요.<br>문제를 풀고 자동차를 모아보세요!</div>';
+            return;
+        }
+
+        grid.innerHTML = '';
+        [...myCars].reverse().forEach((car, index) => {
+            const realIndex = myCars.length - 1 - index;
+            const el = document.createElement('div');
+            el.className = `flex flex-col items-center justify-center py-6 px-2 rounded-2xl ${car.color} border-4 shadow-md animate-pop-in relative group`;
+            el.style.animationFillMode = 'both';
+            el.style.animationDelay = `${(index % 10) * 0.05}s`;
+            const isDarkCard = ['초월', '불멸', '개발자', '뽑기불가', '히든'].includes(car.rarity);
+            el.innerHTML = `
+                <div class="text-5xl mb-3 floating" style="animation-delay: ${Math.random()}s">${car.emoji}</div>
+                <div class="text-[14px] font-bold ${isDarkCard ? 'text-white' : 'text-slate-700'} text-center break-keep">${car.name}</div>
+                <div class="text-[11px] text-slate-700 font-bold bg-white/85 px-2 py-1 rounded-full mt-2 mb-2">${car.rarity}</div>
+                <button onclick="promptSellCar(${realIndex})" class="w-full bg-red-100 hover:bg-red-200 text-red-600 font-bold text-xs py-1.5 rounded-lg transition-colors border border-red-200 shadow-sm hidden group-hover:block absolute bottom-2 left-0 right-0 mx-2" style="width: calc(100% - 1rem);">판매하기</button>
+            `;
+            grid.appendChild(el);
+        });
+    }
+
+    const sellPrices = { '일반': 10, '레어': 50, '전설': 200, '신화': 1000, '초월': 5000, '불멸': 20000, '개발자': 50000, '뽑기불가': 100000, '히든': 500000 };
+
+    function promptSellCar(index) {
+        const car = myCars[index];
+        const price = sellPrices[car.rarity] || 0;
+
+        document.getElementById('confirm-title').textContent = '자동차 판매';
+        document.getElementById('confirm-desc').innerHTML = `<b>${car.name}</b> (${car.rarity})<br>정말 판매하시겠습니까?<br><span class="text-blue-600 font-bold text-lg">보상: ${price} 포인트</span>`;
+        document.getElementById('confirm-btn').onclick = () => {
+            closeConfirmModal();
+            sellCar(index, price);
+        };
+
+        fadeInModal('confirm-modal', 'confirm-box');
+    }
+
+    function sellCar(index, price) {
+        myCars.splice(index, 1);
+        points += price;
+        triggerSave();
+        updatePointsUI();
+        renderGarage();
+        showModal('판매 완료!', `${price} 포인트를 획득했습니다!`, 'success');
+    }
+
+    const carPacks = {
+        'lambo': {
+            name: '😈 람보르기니 팩',
+            cost: 5000,
+            cars: [
+                { emoji: '🏎️', name: '람보르기니 우루스', rarity: '전설' },
+                { emoji: '🚗', name: '람보르기니 아벤타도르', rarity: '신화' },
+                { emoji: '⚡', name: '람보르기니 시안', rarity: '초월' },
+                { emoji: '😈', name: '람보르기니 베네노', rarity: '불멸' }
+            ]
+        },
+        'porsche': {
+            name: '🏎️ 포르쉐 팩',
+            cost: 6000,
+            cars: [
+                { emoji: '🚗', name: '포르쉐 파나메라', rarity: '전설' },
+                { emoji: '🏎️', name: '포르쉐 911 GT3', rarity: '신화' },
+                { emoji: '⚡', name: '포르쉐 미션 R', rarity: '개발자' },
+                { emoji: '🚀', name: '포르쉐 미션 X', rarity: '뽑기불가' }
+            ]
+        },
+        'bugatti': {
+            name: '🛸 부가티 팩',
+            cost: 8000,
+            cars: [
+                { emoji: '🏎️', name: '부가티 베이론', rarity: '신화' },
+                { emoji: '🏎️', name: '부가티 시론', rarity: '초월' },
+                { emoji: '🔥', name: '부가티 볼리드', rarity: '불멸' },
+                { emoji: '🏎️', name: '부가티 비전 그란투리스모', rarity: '뽑기불가' }
+            ]
+        },
+        'korea': {
+            name: '✨ K-프리미엄 팩',
+            cost: 3000,
+            cars: [
+                { emoji: '🏎️', name: '제네시스 G90', rarity: '전설' },
+                { emoji: '💠', name: '현대 N Vision 74', rarity: '개발자' },
+                { emoji: '✨', name: '제네시스 X 컨버터블', rarity: '개발자' }
+            ]
+        },
+        'hyper': {
+            name: '🌌 하이퍼엔드 드림 팩',
+            cost: 10000,
+            cars: [
+                { emoji: '🚀', name: '코닉세그 제스코', rarity: '초월' },
+                { emoji: '⚡', name: 'SSC 투아타라', rarity: '불멸' },
+                { emoji: '🌪️', name: '헤네시 베놈 F5', rarity: '불멸' },
+                { emoji: '🧬', name: '벤츠 비전 AVTR', rarity: '뽑기불가' }
+            ]
+        }
+    };
+
+    window.buyCarPack = function(packId) {
+        const pack = carPacks[packId];
+        if (!pack) return;
+
+        if (diamonds >= pack.cost) {
+            document.getElementById('confirm-title').textContent = '프리미엄 팩 구매';
+            document.getElementById('confirm-desc').innerHTML = `<span class="text-xl font-bold">${pack.name}</span><br>정말 구매하시겠습니까?<br><span class="text-blue-600 font-bold text-lg">비용: 💎 ${pack.cost} 개</span>`;
+            document.getElementById('confirm-btn').onclick = () => {
+                closeConfirmModal();
+                executeBuyCarPack(packId);
+            };
+            fadeInModal('confirm-modal', 'confirm-box');
+        } else {
+            showModal('다이아 부족!', `다이아가 부족합니다.<br>필요 다이아: ${pack.cost}개`, 'error');
+        }
+    };
+
+    function executeBuyCarPack(packId) {
+        const pack = carPacks[packId];
+        diamonds -= pack.cost;
+
+        pack.cars.forEach(car => {
+            const rarityInfo = rarities.find(r => r.name === car.rarity);
+            myCars.push({
+                emoji: car.emoji,
+                name: car.name,
+                rarity: car.rarity,
+                color: rarityInfo ? rarityInfo.color : 'bg-slate-100'
+            });
+        });
+
+        triggerSave();
+        updatePointsUI();
+        renderGarage();
+
+        let carNames = pack.cars.map(c => c.name).join('<br> • ');
+        showModal('팩 구매 성공! 🎉', `<b>${pack.name}</b> 상품이 차고로 지급되었습니다!<br><br><div class="text-sm text-slate-500 text-left bg-slate-50 p-3 rounded-lg"> • ${carNames}</div>`, 'success');
+    }
+
+    window.buyAllCarsPack = function() {
+        const cost = 5000;
+        if (rubies >= cost) {
+            document.getElementById('confirm-title').textContent = '👑 모든 자동차 팩 구매';
+            document.getElementById('confirm-desc').innerHTML = `<span class="text-xl font-bold text-red-600">👑 모든 자동차 팩</span><br>일반~뽑기불가 등급의 자동차 40종을 한 번에 획득합니다!<br><span class="text-xs text-slate-400">(히든 등급 F1 시리즈 제외)</span><br><span class="text-pink-600 font-bold text-lg">비용: ❤️ 5,000 개</span>`;
+            document.getElementById('confirm-btn').onclick = () => {
+                closeConfirmModal();
+                executeBuyAllCarsPack();
+            };
+            fadeInModal('confirm-modal', 'confirm-box');
+        } else {
+            showModal('루비 부족!', `루비가 부족합니다.<br>필요 루비: 5,000 ❤️ (현재: ${rubies} ❤️)`, 'error');
+        }
+    };
+
+    function executeBuyAllCarsPack() {
+        rubies -= 5000;
+        let totalAdded = 0;
+
+        Object.keys(carPool).forEach(rarityName => {
+            if (rarityName === '히든') return;
+            const rarityInfo = rarities.find(r => r.name === rarityName);
+            carPool[rarityName].forEach(car => {
+                myCars.push({
+                    emoji: car.emoji,
+                    name: car.name,
+                    rarity: rarityName,
+                    color: rarityInfo ? rarityInfo.color : 'bg-slate-100'
+                });
+                totalAdded++;
+            });
+        });
+
+        triggerSave();
+        updatePointsUI();
+        renderGarage();
+
+        showModal('전설의 팩 구매 완료! 👑', `히든 등급을 제외한 모든 자동차 <b>${totalAdded}종</b>이 차고에 지급되었습니다!`, 'success');
+    }
+
+    function closeConfirmModal() {
+        fadeOutModal('confirm-modal', 'confirm-box');
+    }
+
+    function mergeCars(fromRarity, toRarity, reqCount) {
+        const indices = [];
+        for (let i = 0; i < myCars.length; i++) {
+            if (myCars[i].rarity === fromRarity) {
+                indices.push(i);
+            }
+        }
+
+        if (indices.length < reqCount) {
+            showModal('합성 실패 😥', `${fromRarity} 등급 자동차가 ${reqCount}대 필요해요.<br>(현재 보유: ${indices.length}대)`, 'error');
+            return;
+        }
+
+        for (let i = 0; i < reqCount; i++) {
+            myCars.splice(indices[indices.length - 1 - i], 1);
+        }
+
+        const targetRarity = rarities.find(r => r.name === toRarity);
+        const models = carPool[toRarity];
+        const selectedModel = models[Math.floor(Math.random() * models.length)];
+
+        const myNewCar = {
+            emoji: selectedModel.emoji,
+            name: selectedModel.name,
+            rarity: targetRarity.name,
+            color: targetRarity.color
+        };
+
+        myCars.push(myNewCar);
+        triggerSave();
+        renderGarage();
+
+        const isLegendary = toRarity === '전설';
+        const isMythic = toRarity === '신화';
+        const isTranscendent = toRarity === '초월';
+        const isImmortal = toRarity === '불멸';
+        const isDeveloper = toRarity === '개발자';
+        const isUnpullable = toRarity === '뽑기불가';
+        const isHidden = toRarity === '히든';
+
+        let highlightClass = 'text-blue-500 border border-blue-400';
+        let grandText = '';
+
+        if (isLegendary) {
+            highlightClass = 'text-yellow-600 border border-yellow-400';
+            grandText = '<p class="text-xs text-red-500 font-bold mt-2">초대박! 전설의 자동차를 획득했습니다!</p>';
+        } else if (isMythic) {
+            highlightClass = 'text-purple-600 border border-purple-400 bg-purple-50';
+            grandText = '<p class="text-sm text-purple-600 font-bold mt-2 animate-pulse">환상적입니다! 신화 등급 탄생!</p>';
+        } else if (isTranscendent) {
+            highlightClass = 'text-yellow-400 border border-yellow-500 bg-slate-800';
+            grandText = '<p class="text-lg text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 font-bold mt-2 animate-bounce">세계 최고! 초월 등급을 완성했습니다!</p>';
+        } else if (isImmortal) {
+            highlightClass = 'text-red-400 border border-red-500 bg-red-950 shadow-lg shadow-red-500/50';
+            grandText = '<p class="text-xl text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700 font-bold mt-2 animate-ping">절대존엄! 불멸 등급 강림!</p>';
+        } else if (isDeveloper) {
+            highlightClass = 'text-green-400 border border-green-500 bg-slate-900 shadow-lg shadow-green-500/50 font-mono';
+            grandText = '<p class="text-2xl text-green-500 font-bold mt-2 animate-pulse">코드가 생명을 얻었습니다! 개발자 등급!</p>';
+        } else if (isUnpullable) {
+            highlightClass = 'text-white border border-slate-700 bg-black shadow-lg shadow-white/50 tracking-widest';
+            grandText = '<p class="text-3xl text-white font-bold mt-2 animate-bounce">존재할 수 없는 것! 뽑기불가 등급 달성!</p>';
+        } else if (isHidden) {
+            highlightClass = 'text-amber-300 border-2 border-amber-400 bg-gradient-to-r from-indigo-950 via-purple-950 to-pink-950 shadow-xl shadow-amber-400/70 tracking-widest';
+            grandText = '<p class="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-pink-500 to-indigo-500 font-bold mt-3 animate-bounce">🏁 전설의 서킷 지배자! 히든 F1 머신 강림! 👑</p>';
+        }
+
+        const resultHTML = `
+            <div class="text-xl mb-4 font-bold text-slate-500">✨ 자동차 합성 성공! ✨</div>
+            <span class="text-6xl mb-2 inline-block ${(isLegendary || isMythic || isTranscendent || isImmortal || isDeveloper || isUnpullable || isHidden) ? 'animate-bounce' : 'animate-pop-in'}">${myNewCar.emoji}</span><br>
+            <span class="font-bold text-slate-700 text-2xl">${myNewCar.name}</span><br>
+            <span class="text-sm font-bold bg-white px-3 py-1 rounded-full inline-block mt-2 shadow-sm ${highlightClass}">
+                ${myNewCar.rarity} 등급
+            </span>
+            ${grandText}
+        `;
+        showModal('합성 대성공! 🎉', resultHTML, 'success');
+    }
+
+    // --- Admin System Logic ---
+    function fadeOutModal(modalId, boxId) {
+        const modal = document.getElementById(modalId);
+        const box = document.getElementById(boxId);
+        modal.classList.add('opacity-0');
+        box.classList.remove('scale-100');
+        box.classList.add('scale-90');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    }
+
+    function fadeInModal(modalId, boxId) {
+        const modal = document.getElementById(modalId);
+        const box = document.getElementById(boxId);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            box.classList.remove('scale-90');
+            box.classList.add('scale-100');
+        }, 10);
+    }
+
+    function openSettingsModal(fromBack = false) {
+        if (fromBack) fadeOutModal('point-menu-modal', 'point-menu-box');
+        setTimeout(() => fadeInModal('settings-modal', 'settings-box'), fromBack ? 300 : 0);
+    }
+
+    function closeSettingsModal() {
+        fadeOutModal('settings-modal', 'settings-box');
+    }
+
+    function openPointMenu(fromBack = false) {
+        if (fromBack) fadeOutModal('point-settings-modal', 'point-settings-box');
+        else fadeOutModal('settings-modal', 'settings-box');
+        setTimeout(() => fadeInModal('point-menu-modal', 'point-menu-box'), 300);
+    }
+
+    function closePointMenu() {
+        fadeOutModal('point-menu-modal', 'point-menu-box');
+    }
+
+    function openPointSettings(fromBack = false) {
+        if (fromBack) fadeOutModal('my-point-modal', 'my-point-box');
+        else fadeOutModal('point-menu-modal', 'point-menu-box');
+        setTimeout(() => fadeInModal('point-settings-modal', 'point-settings-box'), 300);
+    }
+
+    function closePointSettings() {
+        fadeOutModal('point-settings-modal', 'point-settings-box');
+    }
+
+    function openMyPointMenu(fromBack = false) {
+        if (fromBack) fadeOutModal('my-point-settings-modal', 'my-point-settings-box');
+        else fadeOutModal('point-settings-modal', 'point-settings-box');
+        setTimeout(() => fadeInModal('my-point-modal', 'my-point-box'), 300);
+    }
+
+    function closeMyPointMenu() {
+        fadeOutModal('my-point-modal', 'my-point-box');
+    }
+
+    function openMyPointSettings() {
+        fadeOutModal('my-point-modal', 'my-point-box');
+        setTimeout(() => fadeInModal('my-point-settings-modal', 'my-point-settings-box'), 300);
+    }
+
+    function closeMyPointSettings() {
+        fadeOutModal('my-point-settings-modal', 'my-point-settings-box');
+    }
+
+    function openAdminPwdModal() {
+        fadeOutModal('my-point-settings-modal', 'my-point-settings-box');
+        setTimeout(() => {
+            adminPwdInput.value = '';
+            fadeInModal('admin-pwd-modal', 'admin-pwd-box');
+        }, 300);
+    }
+
+    function closeAdminPwdModal() {
+        fadeOutModal('admin-pwd-modal', 'admin-pwd-box');
+        setTimeout(() => fadeInModal('my-point-settings-modal', 'my-point-settings-box'), 300);
+    }
+
+    function checkAdminPwd() {
+        if (btoa(adminPwdInput.value) === 'NzIxMTcyODA5OTgw') {
+            isAdminUser = true;
+            triggerSave();
+            updateAuthHeaderUI();
+            fadeOutModal('admin-pwd-modal', 'admin-pwd-box');
+            setTimeout(showAdminScreen, 300);
+        } else {
+            showModal('앗!', '비밀번호가 틀렸습니다.', 'error');
+        }
+    }
+
+    function showAdminScreen() {
+        goHome();
+        homeScreen.classList.add('hidden');
+        adminScreen.classList.remove('hidden');
+        document.getElementById('admin-point-input').value = points;
+        document.getElementById('admin-diamond-input').value = diamonds;
+        document.getElementById('admin-ruby-input').value = rubies;
+        updateAdminCarList();
+    }
+
+    function adminSetPoints() {
+        const pVal = parseInt(document.getElementById('admin-point-input').value);
+        const dVal = parseInt(document.getElementById('admin-diamond-input').value);
+        const rVal = parseInt(document.getElementById('admin-ruby-input').value);
+        if (!isNaN(pVal) && pVal >= 0) points = pVal;
+        if (!isNaN(dVal) && dVal >= 0) diamonds = dVal;
+        if (!isNaN(rVal) && rVal >= 0) rubies = rVal;
+        triggerSave();
+        updatePointsUI();
+        showModal('적용 완료', '설정이 적용되었습니다.', 'success');
+    }
+
+    function updateAdminCarList() {
+        const rarity = document.getElementById('admin-car-rarity').value;
+        const select = document.getElementById('admin-car-select');
+        select.innerHTML = '';
+        carPool[rarity].forEach((car, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.textContent = `${car.emoji} ${car.name}`;
+            select.appendChild(opt);
+        });
+    }
+
+    function adminAddCar() {
+        const rarityName = document.getElementById('admin-car-rarity').value;
+        const carIndex = document.getElementById('admin-car-select').value;
+        const rarityInfo = rarities.find(r => r.name === rarityName);
+        const carData = carPool[rarityName][carIndex];
+
+        const myNewCar = {
+            emoji: carData.emoji,
+            name: carData.name,
+            rarity: rarityInfo.name,
+            color: rarityInfo.color
+        };
+
+        myCars.push(myNewCar);
+        triggerSave();
+        showModal('치트 성공!', `인벤토리에 ${carData.name} (${rarityName}) 추가 완료!`, 'success');
+    }
+
+    function showReadyModal() {
+        showModal('알림', '준비 중인 기능입니다.<br>조금만 기다려주세요!', 'error');
+    }
+
+    function showStats() {
+        closeSettingsModal();
+        const rate = totalSolved === 0 ? 0 : Math.round((correctAnswers / totalSolved) * 100);
+        const html = `
+            <div class="flex flex-col gap-4 text-left w-full mt-4 text-lg">
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <div class="mb-2">📝 푼 문제: <b class="text-blue-600">${totalSolved}</b> 개</div>
+                    <div class="mb-2">⭕ 맞춘 문제: <b class="text-green-600">${correctAnswers}</b> 개</div>
+                    <div>🎯 정답률: <b class="text-pink-500">${rate}</b> %</div>
+                </div>
+            </div>
+        `;
+        setTimeout(() => showModal('나의 학습 통계 📊', html, 'success', null, '닫기'), 300);
+    }
+
+    function showRank() {
+        closeSettingsModal();
+        let rankName = '수학 꿈나무 🌱';
+        if (points >= 100000) rankName = '뽑기 마스터 👑';
+        else if (points >= 50000) rankName = '수학의 신 ⚡';
+        else if (points >= 10000) rankName = '수학 천재 🎓';
+        else if (points >= 5000) rankName = '수학 고수 ⚔️';
+        else if (points >= 1000) rankName = '수학 우등생 🏅';
+
+        const html = `
+            <div class="flex flex-col gap-4 text-center w-full mt-4 text-lg">
+                <div class="bg-yellow-50 p-6 rounded-xl border border-yellow-200 shadow-inner">
+                    <div class="text-sm text-slate-500 mb-1">현재 당신의 등급은</div>
+                    <div class="text-3xl font-bold text-yellow-600 animate-pulse">${rankName}</div>
+                    <div class="text-sm text-slate-500 mt-4">(포인트 달성량 기준)</div>
+                </div>
+            </div>
+        `;
+        setTimeout(() => showModal('내 등급 보기 🏅', html, 'success', null, '멋지네요!'), 300);
+    }
+
+    let currentHoFTab = 'total';
+    let cachedHoFPlayers = [];
+
+    function calculatePlayerPowerScore(pData) {
+        const pts = Number(pData.points) || 0;
+        const dia = Number(pData.diamonds) || 0;
+        const rub = Number(pData.rubies) || 0;
+        const corr = Number(pData.correctAnswers) || 0;
+        const carsCount = Array.isArray(pData.myCars) ? pData.myCars.length : 0;
+        return pts + (dia * 100) + (rub * 1000) + (corr * 50) + (carsCount * 30);
+    }
+
+    function getPlayerTitleBadge(totalScore) {
+        if (totalScore >= 500000) return '👑 전설의 수학황제';
+        if (totalScore >= 100000) return '⚡ 수학의 신';
+        if (totalScore >= 30000) return '🎓 수학 천재';
+        if (totalScore >= 10000) return '⚔️ 수학 고수';
+        if (totalScore >= 2000) return '🏅 수학 우등생';
+        return '🌱 수학 꿈나무';
+    }
+
+    async function showHoF() {
+        closeSettingsModal();
+        setTimeout(async () => {
+            fadeInModal('hof-modal', 'hof-box');
+            const listContainer = document.getElementById('hof-list-container');
+            listContainer.innerHTML = '<div class="text-center text-slate-400 py-10">실시간 랭킹을 불러오는 중입니다... ⏳</div>';
+
+            const playerMap = new Map();
+            const accounts = getAccountsDB();
+            Object.keys(accounts).forEach(accId => {
+                if (accId === 'guest') return;
+                let accData = null;
+                try {
+                    const raw = localStorage.getItem(getUserStorageKey(accId));
+                    if (raw) accData = JSON.parse(raw);
+                } catch (e) {}
+
+                playerMap.set(accId, {
+                    accountId: accId,
+                    nickname: (accData && accData.nickname) || accounts[accId].nickname || accId,
+                    isAdminUser: Boolean(accData && accData.isAdminUser),
+                    points: (accData && Number(accData.points)) || 0,
+                    diamonds: (accData && Number(accData.diamonds)) || 0,
+                    rubies: (accData && Number(accData.rubies)) || 0,
+                    correctAnswers: (accData && Number(accData.correctAnswers)) || 0,
+                    totalSolved: (accData && Number(accData.totalSolved)) || 0,
+                    myCars: (accData && Array.isArray(accData.myCars)) ? accData.myCars : []
+                });
+            });
+
+            if (window.fetchAllLeaderboardPlayers) {
+                const cloudPlayers = await window.fetchAllLeaderboardPlayers();
+                cloudPlayers.forEach(cp => {
+                    if (!cp.accountId || cp.accountId === 'guest') return;
+                    const existing = playerMap.get(cp.accountId);
+                    if (!existing || calculatePlayerPowerScore(cp) >= calculatePlayerPowerScore(existing)) {
+                        playerMap.set(cp.accountId, {
+                            accountId: cp.accountId,
+                            nickname: cp.nickname || cp.accountId,
+                            isAdminUser: Boolean(cp.isAdminUser),
+                            points: Number(cp.points) || 0,
+                            diamonds: Number(cp.diamonds) || 0,
+                            rubies: Number(cp.rubies) || 0,
+                            correctAnswers: Number(cp.correctAnswers) || 0,
+                            totalSolved: Number(cp.totalSolved) || 0,
+                            myCars: Array.isArray(cp.myCars) ? cp.myCars : []
+                        });
+                    }
+                });
+            }
+
+            if (currentAccountId) {
+                playerMap.set(currentAccountId, {
+                    accountId: currentAccountId,
+                    nickname: currentAccountId === 'guest' ? '게스트 (나)' : currentNickname,
+                    isAdminUser: isAdminUser,
+                    points: points,
+                    diamonds: diamonds,
+                    rubies: rubies,
+                    correctAnswers: correctAnswers,
+                    totalSolved: totalSolved,
+                    myCars: myCars
+                });
+            }
+
+            cachedHoFPlayers = Array.from(playerMap.values());
+            switchHoFTab(currentHoFTab);
+        }, 300);
+    }
+
+    function closeHoFModal() {
+        fadeOutModal('hof-modal', 'hof-box');
+    }
+
+    function switchHoFTab(tab) {
+        currentHoFTab = tab;
+        const tabs = ['total', 'points', 'solved'];
+        tabs.forEach(t => {
+            const btn = document.getElementById(`hof-tab-${t}`);
+            if (!btn) return;
+            if (t === tab) {
+                btn.className = 'py-2 rounded-xl font-bold text-sm bg-white text-amber-600 shadow-sm transition-all';
+            } else {
+                btn.className = 'py-2 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 transition-all';
+            }
+        });
+
+        renderHoFList();
+    }
+
+    function renderHoFList() {
+        const listContainer = document.getElementById('hof-list-container');
+        const myRankText = document.getElementById('hof-my-rank-text');
+        const myScoreLabel = document.getElementById('hof-my-score-label');
+        const myScoreVal = document.getElementById('hof-my-score-val');
+
+        if (!cachedHoFPlayers || cachedHoFPlayers.length === 0) {
+            listContainer.innerHTML = '<div class="text-center text-slate-400 py-10">아직 등록된 플레이어가 없습니다.<br>회원가입 후 첫 1위의 주인공이 되어보세요!</div>';
+            return;
+        }
+
+        const sorted = [...cachedHoFPlayers].sort((a, b) => {
+            if (currentHoFTab === 'points') return b.points - a.points;
+            if (currentHoFTab === 'solved') return b.correctAnswers - a.correctAnswers;
+            return calculatePlayerPowerScore(b) - calculatePlayerPowerScore(a);
+        });
+
+        const myIdx = sorted.findIndex(p => p.accountId === currentAccountId);
+        if (myIdx !== -1) {
+            const me = sorted[myIdx];
+            myRankText.textContent = `전체 ${sorted.length}명 중 ${myIdx + 1}위`;
+            if (currentHoFTab === 'points') {
+                myScoreLabel.textContent = '보유 포인트';
+                myScoreVal.textContent = `${me.points.toLocaleString()} P`;
+            } else if (currentHoFTab === 'solved') {
+                myScoreLabel.textContent = '정답 문제 수';
+                myScoreVal.textContent = `${me.correctAnswers.toLocaleString()} 문제`;
+            } else {
+                myScoreLabel.textContent = '종합 랭킹 점수';
+                myScoreVal.textContent = `${calculatePlayerPowerScore(me).toLocaleString()} 점`;
+            }
+        } else {
+            myRankText.textContent = '순위 외';
+            myScoreVal.textContent = '0';
+        }
+
+        listContainer.innerHTML = '';
+        sorted.forEach((player, idx) => {
+            const rank = idx + 1;
+            const isMe = player.accountId === currentAccountId;
+            const totalScore = calculatePlayerPowerScore(player);
+            const titleBadge = getPlayerTitleBadge(totalScore);
+
+            let rankBadge = `<span class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm shrink-0">${rank}</span>`;
+            let cardBg = 'bg-slate-50 border-slate-200';
+            if (rank === 1) {
+                rankBadge = `<span class="text-2xl w-8 text-center shrink-0">🥇</span>`;
+                cardBg = 'bg-gradient-to-r from-yellow-100 to-amber-50 border-yellow-400 shadow-sm';
+            } else if (rank === 2) {
+                rankBadge = `<span class="text-2xl w-8 text-center shrink-0">🥈</span>`;
+                cardBg = 'bg-gradient-to-r from-slate-200 to-slate-100 border-slate-300 shadow-sm';
+            } else if (rank === 3) {
+                rankBadge = `<span class="text-2xl w-8 text-center shrink-0">🥉</span>`;
+                cardBg = 'bg-gradient-to-r from-orange-100 to-amber-50 border-orange-300 shadow-sm';
+            }
+
+            if (isMe) {
+                cardBg += ' ring-2 ring-blue-500';
+            }
+
+            let mainMetric = '';
+            let subMetric = '';
+            if (currentHoFTab === 'points') {
+                mainMetric = `<span class="text-yellow-600 font-bold text-base">🪙 ${player.points.toLocaleString()} P</span>`;
+                subMetric = `💎 ${player.diamonds} · ❤️ ${player.rubies}`;
+            } else if (currentHoFTab === 'solved') {
+                const rate = player.totalSolved > 0 ? Math.round((player.correctAnswers / player.totalSolved) * 100) : 0;
+                mainMetric = `<span class="text-green-600 font-bold text-base">⭕ ${player.correctAnswers.toLocaleString()} 문제</span>`;
+                subMetric = `풀이 ${player.totalSolved}회 (정답률 ${rate}%)`;
+            } else {
+                mainMetric = `<span class="text-indigo-600 font-bold text-base">${totalScore.toLocaleString()} 점</span>`;
+                subMetric = `🪙 ${player.points.toLocaleString()}P · ⭕ ${player.correctAnswers}문제 · 🚗 ${player.myCars.length}대`;
+            }
+
+            const row = document.createElement('div');
+            row.className = `p-3 rounded-2xl border-2 flex items-center justify-between gap-2 ${cardBg}`;
+            row.innerHTML = `
+                <div class="flex items-center gap-2.5 min-w-0">
+                    ${rankBadge}
+                    <div class="text-left min-w-0">
+                        <div class="font-bold text-slate-800 text-base truncate flex items-center gap-1.5">
+                            <span>${player.nickname}</span>
+                            ${player.isAdminUser ? '<span class="bg-purple-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">👑 관리자</span>' : ''}
+                            ${isMe ? '<span class="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">나</span>' : ''}
+                        </div>
+                        <div class="text-xs text-slate-500">${titleBadge}</div>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <div>${mainMetric}</div>
+                    <div class="text-[11px] text-slate-400">${subMetric}</div>
+                </div>
+            `;
+            listContainer.appendChild(row);
+        });
+    }
+
+    function doAttendance() {
+        closePointMenu();
+        const today = new Date().toDateString();
+        setTimeout(() => {
+            if (attendanceDate === today) {
+                showModal('출석체크', '오늘은 이미 출석하셨습니다!<br>내일 다시 와주세요. 😊', 'error', null, '확인');
+            } else {
+                attendanceDate = today;
+                points += 100;
+                triggerSave();
+                updatePointsUI();
+                showModal('출석체크 완료! 📅', '출석 보상으로 <b class="text-yellow-600">100 포인트</b>를 받았습니다!', 'success');
+            }
+        }, 300);
+    }
+
+    function toggleSavings() {
+        const btn = document.getElementById('savings-btn');
+        if (savingsActive) {
+            savingsActive = false;
+            clearInterval(savingsInterval);
+            btn.innerHTML = '🏦 포인트 적금 가입';
+            btn.classList.remove('btn-pink');
+            btn.classList.add('btn-white', 'text-green-600');
+            showModal('적금 해지', '포인트 적금을 중지했습니다.', 'error', null, '확인');
+        } else {
+            savingsActive = true;
+            btn.innerHTML = '🏦 포인트 적금 해지';
+            btn.classList.remove('btn-white', 'text-green-600');
+            btn.classList.add('btn-pink');
+
+            savingsInterval = setInterval(() => {
+                const earned = rand(10, 20);
+                points += earned;
+                triggerSave();
+                updatePointsUI();
+            }, 60000);
+
+            closePointMenu();
+            setTimeout(() => {
+                showModal('적금 가입 완료! 🏦', '이제 놀이터를 켜두시면 <b>1분마다 10~20 포인트</b>가 자동으로 쌓입니다!<br>(새로고침하면 중지됩니다)', 'success', null, '확인');
+            }, 300);
+        }
+    }
+
+    function openSoundSettings() {
+        closeSettingsModal();
+        const html = `
+            <div class="flex flex-col gap-4 w-full mt-4">
+                <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span class="text-xl font-bold text-slate-700">배경음악 (BGM)</span>
+                    <button onclick="toggleSound('bgm', this)" class="btn-3d ${bgmEnabled ? 'btn-green' : 'btn-slate text-white bg-slate-400'} px-6 py-2 rounded-xl text-lg">${bgmEnabled ? 'ON' : 'OFF'}</button>
+                </div>
+                <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span class="text-xl font-bold text-slate-700">효과음 (SFX)</span>
+                    <button onclick="toggleSound('sfx', this)" class="btn-3d ${sfxEnabled ? 'btn-green' : 'btn-slate text-white bg-slate-400'} px-6 py-2 rounded-xl text-lg">${sfxEnabled ? 'ON' : 'OFF'}</button>
+                </div>
+            </div>
+        `;
+        setTimeout(() => showModal('소리 설정 🔊', html, 'success', null, '저장 및 닫기'), 300);
+    }
+
+    window.toggleSound = function(type, btnEl) {
+        if (type === 'bgm') {
+            bgmEnabled = !bgmEnabled;
+            btnEl.textContent = bgmEnabled ? 'ON' : 'OFF';
+            btnEl.className = `btn-3d ${bgmEnabled ? 'btn-green' : 'btn-slate text-white bg-slate-400'} px-6 py-2 rounded-xl text-lg`;
+        } else {
+            sfxEnabled = !sfxEnabled;
+            btnEl.textContent = sfxEnabled ? 'ON' : 'OFF';
+            btnEl.className = `btn-3d ${sfxEnabled ? 'btn-green' : 'btn-slate text-white bg-slate-400'} px-6 py-2 rounded-xl text-lg`;
+        }
+        triggerSave();
+    };
+
+    function openScreenSettings() {
+        closeSettingsModal();
+        const html = `
+            <div class="flex flex-wrap justify-center gap-4 w-full mt-6">
+                <button onclick="applyTheme('#f0f9ff', '#bae6fd')" class="w-16 h-16 rounded-full bg-blue-100 border-4 border-blue-300 shadow-md hover:scale-110 transition-transform"></button>
+                <button onclick="applyTheme('#fdf2f8', '#fbcfe8')" class="w-16 h-16 rounded-full bg-pink-100 border-4 border-pink-300 shadow-md hover:scale-110 transition-transform"></button>
+                <button onclick="applyTheme('#f0fdf4', '#bbf7d0')" class="w-16 h-16 rounded-full bg-green-100 border-4 border-green-300 shadow-md hover:scale-110 transition-transform"></button>
+                <button onclick="applyTheme('#fefce8', '#fef08a')" class="w-16 h-16 rounded-full bg-yellow-100 border-4 border-yellow-300 shadow-md hover:scale-110 transition-transform"></button>
+                <button onclick="applyTheme('#f3f4f6', '#d1d5db')" class="w-16 h-16 rounded-full bg-gray-100 border-4 border-gray-300 shadow-md hover:scale-110 transition-transform"></button>
+            </div>
+            <p class="mt-6 text-slate-500 font-bold">원하는 배경 색상을 선택하세요!</p>
+        `;
+        setTimeout(() => showModal('화면 테마 설정 🖥️', html, 'success', null, '닫기'), 300);
+    }
+
+    window.applyTheme = function(bg, dot) {
+        currentThemeBg = bg;
+        currentThemeDot = dot;
+        document.body.style.backgroundColor = bg;
+        document.body.style.backgroundImage = `radial-gradient(${dot} 2px, transparent 2px)`;
+        triggerSave();
+    };
+
+    // --- Coupon & Diamond Shop Systems ---
+    const couponDB = {
+        'MATH2026': { type: 'point', val: 500, msg: '500 포인트가 지급되었습니다!' },
+        'DIAMOND': { type: 'diamond', val: 10, msg: '다이아 10개가 지급되었습니다!' },
+        'GACHA777': { type: 'point', val: 777, msg: '777 포인트가 지급되었습니다!' },
+        'SECRET100': { type: 'diamond', val: 100, msg: '비밀 쿠폰! 다이아 100개가 지급되었습니다!' },
+        'SUPERCAR': { type: 'point', val: 1000, msg: '1,000 포인트가 지급되었습니다!' },
+        'LUCKYDAY': { type: 'diamond', val: 30, msg: '다이아 30개가 지급되었습니다!' },
+        'MATHKING': { type: 'diamond', val: 50, msg: '다이아 50개가 지급되었습니다!' },
+        'HELLO2026': { type: 'point', val: 300, msg: '300 포인트가 지급되었습니다!' },
+        'RICHSTUDENT': { type: 'point', val: 2000, msg: '2,000 포인트가 지급되었습니다!' },
+        'LEGENDARY': { type: 'diamond', val: 50, msg: '다이아 50개가 지급되었습니다!' },
+        'BETA30': { type: 'ruby', val: 30, msg: '베타 3.0 얼리엑세스 기념! 루비 30개가 지급되었습니다!' }
+    };
+
+    function openCouponModal() {
+        closePointSettings();
+        document.getElementById('coupon-input').value = '';
+        fadeInModal('coupon-modal', 'coupon-box');
+    }
+
+    function closeCouponModal() {
+        fadeOutModal('coupon-modal', 'coupon-box');
+    }
+
+    function submitCoupon() {
+        const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+        if (!code) {
+            showModal('앗!', '쿠폰 코드를 입력해주세요.', 'error');
+            return;
+        }
+        if (usedCoupons.includes(code)) {
+            showModal('앗!', '이미 사용한 쿠폰입니다.', 'error');
+            return;
+        }
+
+        if (couponDB[code]) {
+            const reward = couponDB[code];
+            if (reward.type === 'point') points += reward.val;
+            else if (reward.type === 'diamond') diamonds += reward.val;
+            else if (reward.type === 'ruby') rubies += reward.val;
+
+            usedCoupons.push(code);
+            triggerSave();
+            updatePointsUI();
+            document.getElementById('coupon-input').value = '';
+            closeCouponModal();
+            setTimeout(() => showModal('쿠폰 등록 성공! 🎉', reward.msg, 'success'), 300);
+        } else {
+            showModal('앗!', '유효하지 않은 쿠폰 번호입니다.', 'error');
+        }
+    }
+
+    function openDiamondShop() {
+        fadeInModal('diamond-shop-modal', 'diamond-shop-box');
+    }
+
+    function closeDiamondShop() {
+        fadeOutModal('diamond-shop-modal', 'diamond-shop-box');
+    }
+
+    function buyDiamonds(amount) {
+        const costs = { 1: 100, 5: 500, 10: 1000 };
+        const cost = costs[amount];
+        if (points >= cost) {
+            points -= cost;
+            diamonds += amount;
+            triggerSave();
+            updatePointsUI();
+            showModal('교환 성공! 💎', `포인트로 다이아 ${amount}개를 구매했습니다!`, 'success');
+        } else {
+            showModal('앗!', '포인트가 부족합니다.<br>문제를 풀고 포인트를 모아오세요!', 'error');
+        }
+    }
+
+    // --- Ruby Shop & Ruby Roulette Systems ---
+    function openRubyShop() {
+        fadeInModal('ruby-shop-modal', 'ruby-shop-box');
+    }
+
+    function closeRubyShop() {
+        fadeOutModal('ruby-shop-modal', 'ruby-shop-box');
+    }
+
+    function buyRubies(amount) {
+        const cost = amount * 10;
+        if (diamonds >= cost) {
+            diamonds -= cost;
+            rubies += amount;
+            triggerSave();
+            updatePointsUI();
+            showModal('교환 성공! ❤️', `다이아 ${cost}개로 루비 ${amount}개를 교환했습니다!`, 'success');
+        } else {
+            showModal('다이아 부족!', `다이아가 부족합니다.<br>필요 다이아: ${cost} 💎 (현재: ${diamonds} 💎)`, 'error');
+        }
+    }
+
+    let isSpinning = false;
+    let currentWheelRotation = 0;
+
+    function openRubyRoulette() {
+        updatePointsUI();
+        fadeInModal('ruby-roulette-modal', 'ruby-roulette-box');
+    }
+
+    function closeRubyRoulette() {
+        if (isSpinning) return;
+        fadeOutModal('ruby-roulette-modal', 'ruby-roulette-box');
+    }
+
+    function spinRubyRoulette() {
+        if (isSpinning) return;
+        if (rubies < 2) {
+            showModal('루비 부족!', '룰렛을 돌리려면 루비 2개(❤️)가 필요해요!<br>루비 상점에서 다이아로 교환해보세요.', 'error');
+            return;
+        }
+
+        rubies -= 2;
+        triggerSave();
+        updatePointsUI();
+
+        isSpinning = true;
+        const spinBtn = document.getElementById('spin-roulette-btn');
+        spinBtn.disabled = true;
+        spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        const prizes = [
+            { name: '2,000 포인트', type: 'point', val: 2000, weight: 25 },
+            { name: '다이아 20개', type: 'diamond', val: 20, weight: 25 },
+            { name: '루비 2개 (본전 회수!)', type: 'ruby', val: 2, weight: 18 },
+            { name: '5,000 포인트', type: 'point', val: 5000, weight: 10 },
+            { name: '다이아 50개', type: 'diamond', val: 50, weight: 8 },
+            { name: '루비 5개 (2.5배 대박!)', type: 'ruby', val: 5, weight: 6 },
+            { name: '전설 등급 자동차', type: 'car', rarity: '전설', weight: 5 },
+            { name: '신화~초월 등급 자동차', type: 'car_high', weight: 3 }
+        ];
+
+        const totalWeight = prizes.reduce((acc, p) => acc + p.weight, 0);
+        let r = Math.random() * totalWeight;
+        let selectedIdx = 0;
+        for (let i = 0; i < prizes.length; i++) {
+            r -= prizes[i].weight;
+            if (r <= 0) {
+                selectedIdx = i;
+                break;
+            }
+        }
+
+        const sectorAngle = 360 / prizes.length;
+        const sectorCenter = selectedIdx * sectorAngle + (sectorAngle / 2);
+        const targetAngle = (360 - sectorCenter) % 360;
+        const extraSpins = 360 * 5;
+        const remainder = currentWheelRotation % 360;
+        const delta = (targetAngle - remainder + 360) % 360;
+        currentWheelRotation += extraSpins + delta;
+
+        const wheel = document.getElementById('roulette-wheel');
+        wheel.style.transform = `rotate(${currentWheelRotation}deg)`;
+
+        setTimeout(() => {
+            isSpinning = false;
+            spinBtn.disabled = false;
+            spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            const prize = prizes[selectedIdx];
+            let rewardMsg = '';
+
+            if (prize.type === 'point') {
+                points += prize.val;
+                rewardMsg = `🪙 <b class="text-yellow-600 text-2xl">${prize.val.toLocaleString()} 포인트</b>에 당첨되었습니다!`;
+            } else if (prize.type === 'diamond') {
+                diamonds += prize.val;
+                rewardMsg = `💎 <b class="text-blue-600 text-2xl">다이아 ${prize.val}개</b>에 당첨되었습니다!`;
+            } else if (prize.type === 'ruby') {
+                rubies += prize.val;
+                rewardMsg = `❤️ <b class="text-red-600 text-2xl">루비 ${prize.val}개</b>에 당첨되었습니다!`;
+            } else if (prize.type === 'car' || prize.type === 'car_high') {
+                const targetRarity = prize.type === 'car_high'
+                    ? (Math.random() < 0.7 ? '신화' : '초월')
+                    : prize.rarity;
+                const rarityInfo = rarities.find(r => r.name === targetRarity);
+                const models = carPool[targetRarity];
+                const selectedModel = models[Math.floor(Math.random() * models.length)];
+                myCars.push({
+                    emoji: selectedModel.emoji,
+                    name: selectedModel.name,
+                    rarity: targetRarity,
+                    color: rarityInfo.color
+                });
+                if (document.getElementById('gacha-screen') && !document.getElementById('gacha-screen').classList.contains('hidden')) {
+                    renderGarage();
+                }
+                rewardMsg = `<span class="text-5xl block my-2 animate-bounce">${selectedModel.emoji}</span><b>${selectedModel.name}</b> (${targetRarity}) 자동차에 당첨되었습니다!`;
+            }
+
+            triggerSave();
+            updatePointsUI();
+            showModal('룰렛 당첨! 🎊', rewardMsg, 'success');
+        }, 3100);
+    }
+
+    // --- Surprise Deal System ---
+    let surpriseCallback = null;
+    let surpriseCar = null;
+    let surprisePrice = 0;
+
+    function triggerManualSurpriseDeal() {
+        checkSurpriseDeal(null, true);
+    }
+
+    function checkSurpriseDeal(callback, force = false) {
+        if (force || Math.random() < 0.15) {
+            surpriseCallback = callback;
+
+            const tiers = ['전설', '신화', '초월', '불멸'];
+            const prices = [10, 30, 80, 150];
+            const rIdx = rand(0, 3);
+            const targetTier = tiers[rIdx];
+            surprisePrice = prices[rIdx];
+
+            const rarityInfo = rarities.find(r => r.name === targetTier);
+            const models = carPool[targetTier];
+            const selectedModel = models[Math.floor(Math.random() * models.length)];
+
+            surpriseCar = {
+                emoji: selectedModel.emoji,
+                name: selectedModel.name,
+                rarity: rarityInfo.name,
+                color: rarityInfo.color
+            };
+
+            const display = document.getElementById('surprise-car-display');
+            display.className = `flex flex-col items-center justify-center py-6 px-4 rounded-2xl border-4 shadow-md w-full mb-6 ${surpriseCar.color}`;
+            display.innerHTML = `
+                <div class="text-6xl mb-3 floating">${surpriseCar.emoji}</div>
+                <div class="text-xl font-bold text-slate-700 text-center break-keep">${surpriseCar.name}</div>
+                <div class="text-sm text-slate-700 bg-white/80 font-bold px-3 py-1 rounded-full mt-2">${surpriseCar.rarity} 등급</div>
+            `;
+
+            document.getElementById('surprise-buy-btn').innerHTML = `💎 ${surprisePrice}개로 구매`;
+            document.getElementById('surprise-buy-btn').onclick = buySurpriseDeal;
+
+            fadeInModal('surprise-deal-modal', 'surprise-deal-box');
+        } else {
+            if (callback) callback();
+        }
+    }
+
+    function declineSurpriseDeal() {
+        fadeOutModal('surprise-deal-modal', 'surprise-deal-box');
+        setTimeout(() => {
+            if (surpriseCallback) surpriseCallback();
+            surpriseCallback = null;
+        }, 300);
+    }
+
+    function buySurpriseDeal() {
+        if (diamonds >= surprisePrice) {
+            diamonds -= surprisePrice;
+            myCars.push(surpriseCar);
+            triggerSave();
+            updatePointsUI();
+
+            fadeOutModal('surprise-deal-modal', 'surprise-deal-box');
+            setTimeout(() => {
+                showModal('구매 성공! 🎉', `깜짝 딜에서 <b>${surpriseCar.name}</b>을(를) 구매했습니다!<br>차고에서 확인하세요.`, 'success', () => {
+                    if (surpriseCallback) surpriseCallback();
+                    surpriseCallback = null;
+                });
+            }, 300);
+        } else {
+            showModal('다이아 부족!', '다이아가 부족합니다. (상점에서 포인트를 다이아로 바꿀 수 있어요!)', 'error');
+        }
+    }
+
+    // --- Custom Modal System ---
+    function showModal(title, desc, type, callback = null, btnText = '확인') {
+        modalTitle.textContent = title;
+        modalDesc.innerHTML = desc;
+        modalCallback = callback;
+        modalBtn.textContent = btnText;
+
+        if (type === 'success') {
+            modalIcon.textContent = '⭕';
+            modalTitle.className = 'text-3xl font-bold mb-2 text-blue-500';
+            modalBtn.className = 'btn-3d btn-blue text-xl px-8 py-3 rounded-2xl w-full font-bold';
+        } else if (type === 'error') {
+            modalIcon.textContent = '❌';
+            modalTitle.className = 'text-3xl font-bold mb-2 text-pink-500';
+            modalBtn.className = 'btn-3d btn-pink text-xl px-8 py-3 rounded-2xl w-full font-bold';
+
+            if (title === '앗!') {
+                modalIcon.textContent = '👀';
+                modalTitle.className = 'text-3xl font-bold mb-2 text-orange-400';
+                modalBtn.className = 'btn-3d btn-yellow text-xl px-8 py-3 rounded-2xl w-full font-bold text-slate-800';
+            }
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modalBox.classList.remove('scale-90');
+            modalBox.classList.add('scale-100');
+        }, 10);
+
+        modalBtn.onclick = closeModal;
+    }
+
+    function closeModal() {
+        modal.classList.add('opacity-0');
+        modalBox.classList.remove('scale-100');
+        modalBox.classList.add('scale-90');
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            if (modalCallback) {
+                modalCallback();
+                modalCallback = null;
+            }
+        }, 300);
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
